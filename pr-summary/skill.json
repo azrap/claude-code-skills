@@ -1,0 +1,5 @@
+{
+  "name": "pr-summary",
+  "description": "Generate a brief, structured PR summary in markdown format",
+  "version": "1.0.0"
+}

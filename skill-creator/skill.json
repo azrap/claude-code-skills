@@ -1,0 +1,9 @@
+{
+  "name": "skill-creator",
+  "description": "Creates new Claude skills with proper structure and templates",
+  "version": "1.0.0",
+  "triggers": {
+    "keywords": ["create skill", "new skill", "make skill", "skill creator"],
+    "patterns": ["create.*skill", "new.*skill"]
+  }
+}

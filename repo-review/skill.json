@@ -1,0 +1,5 @@
+{
+  "name": "repo-review",
+  "description": "Review an unfamiliar repo and produce a structured breakdown of its contents, architecture, and weaknesses",
+  "version": "1.0.0"
+}
