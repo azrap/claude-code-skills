@@ -43,10 +43,6 @@ When user asks to "create a PR summary" or "summarize the PR":
 - [Fix 1]
 - [Fix 2]
 
-## Stats
-- **+X lines** / **-Y lines**
-- **N files changed**
-- **X lines of tests**
 ```
 
 ## Guidelines
@@ -56,7 +52,7 @@ When user asks to "create a PR summary" or "summarize the PR":
 - **Group related changes**: Use subsections for organization
 - **Include test coverage**: Always mention test files if present
 - **Data flow for features**: Add step-by-step flow for new features
-- **Stats at the end**: From `git diff --stat`
+- **No stats section**: Do not include line counts, file counts, or diff stats
 
 ## Example Prompts
 
