@@ -21,6 +21,18 @@ Before finalizing a runnable goal:
 Do not present a goal as final or ready to run while material questions remain. A preliminary
 version must be labeled **Draft — blocked on open questions** and list what still needs an answer.
 
+## Required skills gate
+
+Before finalizing a runnable goal, identify which skills apply and add a **Required skills**
+section to the goal. For each skill, state what it must be used for. If no skills apply, write
+`Required skills: none`.
+
+Examples:
+
+- `gcf-conventions` — use before writing or reviewing a Google Cloud Function.
+- `gcf-emulator-test` — use before writing or running an emulator verification script.
+- `write-feature-goal` — use to draft or review the goal itself.
+
 ## Seven elements
 
 1. **Outcome** — name the function/feature and the exact external trigger or input it handles.
@@ -193,6 +205,8 @@ check — matching this repo's one-file-per-function test-script pattern.
 
 - [ ] No material open questions remain; every unresolved decision was researched or answered by
       the user before the goal was finalized.
+- [ ] Required skills are listed in the goal, with what each one must be used for; or the goal
+      explicitly says `Required skills: none`.
 - [ ] Outcome is concrete — names the function and its exact trigger, not just "works."
 - [ ] Every hard-rule category has been explicitly considered (applies / doesn't apply / covered
       in a different layer than expected).
