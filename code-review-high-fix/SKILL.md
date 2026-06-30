@@ -14,3 +14,8 @@ When invoked, run the `code-review` skill with:
 - `--fix` flag (apply findings to the working tree after review)
 
 Do not ask the user for effort level or whether to fix — both are fixed by this shortcut.
+
+## Applying findings
+
+- **CONFIRMED**: apply directly.
+- **PLAUSIBLE**: reason through whether the change is actually an improvement before applying. If the reasoning doesn't hold up, reject the finding — don't apply it.

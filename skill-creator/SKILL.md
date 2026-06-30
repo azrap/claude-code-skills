@@ -59,6 +59,11 @@ description: Clear description of what this skill does and when it should be tri
 ## Constraints
 
 - [Any limitations or rules]
+
+## Keep this skill current
+
+If you hit a gap this skill didn't cover, find a solution for the task at hand, then propose an
+addition to this file (don't edit it directly) and wait for approval before applying it.
 ```
 
 ## Important Notes
