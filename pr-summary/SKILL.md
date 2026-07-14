@@ -14,7 +14,15 @@ When user asks to "create a PR summary" or "summarize the PR":
 1. Run `git log origin/main..HEAD --oneline` to get commits
 2. Run `git diff origin/main --stat` to get file changes
 3. Analyze the key changes
-4. Create a markdown file named `PR_SUMMARY.md` in project root
+4. Check for an existing PR on the current branch: `gh pr view --json number,url,body 2>/dev/null`
+   - If a PR exists: write the body to a temp file (via HEREDOC or Write tool)
+     and run `gh pr edit --body-file <path>` to replace its description.
+     Show the user the new body and the PR URL after.
+   - If no PR exists: push the branch if needed (`git push -u origin HEAD`),
+     then run `gh pr create --title "..." --body-file <path>` targeting main.
+     Ask the user for a title first if it isn't obvious from the commits.
+5. Do not write `PR_SUMMARY.md` or any other local file as the output — the
+   GitHub PR description is the only artifact.
 
 ## Format
 
@@ -101,5 +109,6 @@ Note what this example deliberately leaves out: no internal constant/env-var nam
 
 ## Output
 
-Always create an editable markdown file at:
-`./PR_SUMMARY.md`
+Always write the summary directly into the GitHub PR description via `gh pr edit`
+or `gh pr create` (see Usage) — never a local markdown file. Confirm before
+pushing the branch or creating a PR if neither exists yet.
