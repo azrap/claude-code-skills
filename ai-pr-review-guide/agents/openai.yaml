@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI PR Review Guide"
+  short_description: "Guide risk-based review of AI-generated PRs."
+  default_prompt: "Help me review this PR one invariant at a time."
