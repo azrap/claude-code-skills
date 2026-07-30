@@ -1,6 +1,6 @@
 ---
-name: mega-code-review
-description: Run a comprehensive, high-effort review by combining simplify, security-review, code-review-backend-architecture, and code-review. Use when the user invokes /mega-code-review, asks for a mega or exhaustive code review, or requests all four review passes together. Accept an optional --fix flag to fix only confirmed, high-likelihood findings while reporting verified plausible findings without fixing them.
+name: code-review-mega
+description: Run a comprehensive, high-effort review by combining simplify, security-review, code-review-backend-architecture, and code-review. Use when the user invokes /code-review-mega, asks for a mega or exhaustive code review, or requests all four review passes together. Accept an optional --fix flag to fix only confirmed, high-likelihood findings while reporting verified plausible findings without fixing them.
 ---
 
 # Mega Code Review

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Review Mega"
+  short_description: "Run four high-effort review passes"
+  default_prompt: "Use $code-review-mega to deeply review the current diff and write a final report."
