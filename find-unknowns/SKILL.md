@@ -14,6 +14,14 @@ description: >-
 Find gaps between our description of the work and the repository's actual constraints.
 Inspect available evidence before asking the user questions.
 
+## Source reference
+
+Use [A field guide to Claude Fable 5: Finding your unknowns](https://claude.com/blog/a-field-guide-to-claude-fable-finding-your-unknowns)
+as the conceptual source for the four unknown categories and the before, during,
+and after implementation workflow. Consult it when choosing among blind-spot
+passes, prototypes, interviews, references, implementation notes, explainers,
+and quizzes. Treat its model-specific examples as illustrations, not constraints.
+
 ## Choose the mode
 
 Accept one mode:
