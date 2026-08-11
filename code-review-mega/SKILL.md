@@ -72,7 +72,13 @@ When `--fix` is present:
 - Do not fix findings that entered the plausible queue, even if the second review confirms
   them. Report those for manual review.
 - Keep fixes scoped and avoid unrelated refactors.
-- Re-run relevant tests, lint, type checks, and focused searches after fixing.
+- Run the project's typecheck and lint after fixing.
+- Run every configured unit-test suite, not only tests scoped to changed files.
+- Identify and run every emulator script relevant to the reviewed diff. Determine
+  relevance from changed functions, features, callers, and repository testing guidance.
+- Record every command, result, skipped check, and exact skip reason in the report.
+- Do not claim verification succeeded if a required check fails or cannot run.
+- Re-run the full applicable verification set after the final fix.
 - Review the resulting diff again for regressions and unintended changes.
 - If a confirmed finding cannot be fixed safely, leave it unchanged and explain why.
 
@@ -125,7 +131,10 @@ Continue with:
 - ...
 
 ## Verification
-- Command/check: result
+- Typecheck: `{command}` — pass | fail | not configured
+- Lint: `{command}` — pass | fail | not configured
+- Unit tests: `{command}` — pass | fail | not configured
+- Emulator scripts: `{command}` — pass | fail | skipped — exact reason
 
 ## Summary
 - Confirmed findings: N
