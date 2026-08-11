@@ -56,39 +56,39 @@ When user asks to "create a PR summary" or "summarize the PR":
 ## Example (good level of detail)
 
 ```markdown
-# PR Summary: Referral Program — Backend (PR2)
+# PR Summary: Bulk CSV Import — Backend (PR2)
 
 ## Overview
-Adds the backend for Matriarch's two-sided referral program: validating a referral code at checkout, registering new users with FirstPromoter, and gating the signup credit on a real, non-blocked code.
+Adds the backend for bulk CSV member import: validating a file at upload, registering rows with the directory provider, and gating record creation on a well-formed, non-duplicate row.
 
 ## Key Changes
 
 ### Core Implementation
-- **`functions/referral/validateReferralCode.js`**: Validates a code at checkout — Firestore lookup plus a FirstPromoter status check, failing open if FirstPromoter is down.
-- **`functions/referral/registerReferral.js`**: Registers the user with FirstPromoter, records attribution, and saves their referral code to Firestore. Non-blocking and idempotent.
-- **`functions/referral/firstPromoterClient.js`**: Shared FirstPromoter API client — create/lookup/track/status calls, with retry and timeout handling.
-- **`functions/referral/applyStripeReferralCredit.js`**: Now gates the $30 credit on server-side validation instead of trusting the client's call order.
-- **`functions/shared/utils.js`**: Shared retry and normalization helpers used across the referral GCFs.
+- **`functions/import/validateUpload.js`**: Validates a file at upload — schema check plus a provider status call, failing open if the provider is down.
+- **`functions/import/registerRows.js`**: Registers each row with the directory provider, records attribution, and saves the result. Non-blocking and idempotent.
+- **`functions/import/providerClient.js`**: Shared provider API client — create/lookup/track/status calls, with retry and timeout handling.
+- **`functions/import/applyRecordUpdate.js`**: Now gates record creation on server-side validation instead of trusting the client's call order.
+- **`functions/shared/utils.js`**: Shared retry and normalization helpers used across the import functions.
 
 ### Testing
-- Full Jest coverage for all three GCFs (auth, idempotency, self-referral, retries, outages).
-- Manual emulator scripts that exercise the real functions against live FirstPromoter/Stripe test accounts.
+- Full unit coverage for all three functions (auth, idempotency, duplicate rows, retries, outages).
+- Manual emulator scripts that exercise the real functions against provider test accounts.
 
 ### Data Flow
-1. User enters a referral code at checkout → validated before proceeding.
-2. Subscription created (unchanged).
-3. $30 credit applied, re-validating the code server-side.
-4. User registered with FirstPromoter; attribution recorded if referred.
-5. Referrer is credited later via a FirstPromoter webhook (PR 3, separate).
+1. User uploads a CSV → validated before proceeding.
+2. Job record created (unchanged).
+3. Rows applied, re-validating each server-side.
+4. User registered with the provider; attribution recorded if present.
+5. Summary email sent later via a provider webhook (PR 3, separate).
 
 ### Bug Fixes
-- Self-referral guard.
+- Duplicate-row guard.
 - Case-insensitive email matching.
-- Promoter status check now scoped to the correct campaign.
-- FirstPromoter fetch timeout raised after live calls were timing out on success.
+- Provider status check now scoped to the correct workspace.
+- Provider fetch timeout raised after live calls were timing out on success.
 ```
 
-Note what this example deliberately leaves out: no internal constant/env-var names (e.g. no `FIRST_PROMOTER_CAMPAIGN_NUMERIC_ID`), no before/after implementation comparisons, no line counts. One sentence per file, one sentence per fix. That level of detail belongs in code comments or an eng-plan doc, not here.
+Note what this example deliberately leaves out: no internal constant/env-var names, no before/after implementation comparisons, no line counts. One sentence per file, one sentence per fix. That level of detail belongs in code comments or an eng-plan doc, not here.
 
 ## Guidelines
 

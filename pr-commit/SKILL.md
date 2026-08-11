@@ -23,13 +23,13 @@ Follow these steps:
    - If no linter is configured, skip this step.
 3. Consistency check — detect stale terms from renames:
    - Look at the diff for lines removed (old terms) and lines added (new terms)
-   - If a rename is detected (e.g., `referrerUserId` removed, `referringUserId` added), grep ALL changed files for the old term
+   - If a rename is detected (e.g., `oldFieldName` removed, `newFieldName` added), grep ALL changed files for the old term
    - Check code files, test files, doc files, comments, and console.log strings
    - If the old term still appears anywhere in the changed files, flag it as a missed rename
    - List all findings and ask the user whether to fix before committing or proceed anyway
    - If no renames detected in the diff, skip this step
 4. Test coverage check — for each new or modified source file in the diff:
-   - Check if a corresponding test file exists (e.g., `applyStripeReferralCredit.js` → `applyStripeReferralCredit.test.js`)
+   - Check if a corresponding test file exists (e.g., `userService.js` → `userService.test.js`)
    - If a test file exists, check if new functions/exports/code paths added in the diff have matching test cases
    - Flag any untested new code and suggest what tests to add
    - Ask the user whether to write the missing tests before committing or proceed anyway

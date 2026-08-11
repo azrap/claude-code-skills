@@ -29,8 +29,8 @@ section to the goal. For each skill, state what it must be used for. If no skill
 
 Examples:
 
-- `gcf-conventions` — use before writing or reviewing a Google Cloud Function.
-- `gcf-emulator-test` — use before writing or running an emulator verification script.
+- a project-conventions skill — use before writing or reviewing a serverless function.
+- an emulator-test skill — use before writing or running an emulator verification script.
 - `write-feature-goal` — use to draft or review the goal itself.
 
 ## Seven elements
@@ -75,9 +75,9 @@ category below and decide explicitly whether it applies:
 - **Partial-failure tolerance** — if a secondary write (e.g. an audit log) fails after the
   primary side effect succeeded, does the function still report success? Decide explicitly.
 - **State consistency** — after a successful run, are *all* stores that should be updated
-  actually updated? For multi-system writes (e.g. Stripe + Firestore), verify both, not just
-  the primary. A partial state (Stripe credited, Firestore doc missing) is a failure even if
-  the function returned 200.
+  actually updated? For multi-system writes (e.g. a payments provider + your database), verify
+  both, not just the primary. A partial state (provider charged, database doc missing) is a
+  failure even if the function returned 200.
 - **Replay safety under partial failure** — if the primary side effect succeeded but a secondary
   write failed, and the caller retries, does the retry skip the primary rather than re-applying
   it? Distinct from idempotency (which covers clean duplicate events): this is the
@@ -93,7 +93,7 @@ whether an external system is idempotent without knowing its documented behavior
 before writing the verification surface. Don't skip it or guess.
 
 If a category can't be exercised through the verification layer you're using (e.g. an emulator
-script can't selectively break one Firestore write while an earlier read still works), name the
+script can't selectively break one database write while an earlier read still works), name the
 layer that *can* — push it into a mocked unit test instead, and say so in the goal text rather
 than dropping the check.
 
@@ -112,11 +112,11 @@ made in response to findings, need their own scrutiny:
   If it skips based on "any record exists" — including failed ones — it accidentally blocks
   retries forever.
 
-  Example: a webhook tries to credit a user, Stripe is briefly down, code writes
+  Example: a webhook tries to credit a user, the payments provider is briefly down, code writes
   `status: "failed"`. The webhook retries a minute later. A guard that checks "does a record
   exist?" sees the failed doc and skips — the user never gets credited, ever. Fix: check
   `status === "applied"` specifically. A failed doc doesn't match, so the retry goes through and
-  tries Stripe again.
+  tries the provider again.
 - **Re-run the full verification surface after every fix, not just the fastest layer.** Tests
   passing on a fix is not evidence the fix works against the real system the goal cares about —
   same principle as the hard rule above, extended to apply after changes, not only to the
@@ -128,43 +128,42 @@ made in response to findings, need their own scrutiny:
 
 ## Worked example
 
-A webhook handler crediting a referring user on a `fulfilment_pending` vendor event:
+A webhook handler provisioning a license on a `payment_succeeded` event from a payments provider:
 
 ```
 /goal
 
-Outcome: applyStripeReferralReward() handles the FirstPromoter fulfilment_pending webhook end to
+Outcome: provisionLicense() handles the payment provider's payment_succeeded webhook end to
 end.
 
 Verification surface: npm test and npm run lint pass. A single emulator script
-(functions/test-scripts/referrals/emulator-verify-referral-reward.js, same one-file-per-function
-pattern as emulator-verify-referral-credit.js) runs all of the following as sequential
-assertions:
-- Idempotency: duplicate event -> one credit, not two.
+(test-scripts/verify-provisioning.js, same one-file-per-function pattern as
+verify-refund.js) runs all of the following as sequential assertions:
+- Idempotency: duplicate event -> one license, not two.
 - Auth rejection: missing/wrong secret header -> rejected; correct header -> accepted.
-- Correct targeting: credit lands on the right Firebase uid via the firstPromoterId
+- Correct targeting: license lands on the right internal uid via the externalCustomerId
   reverse-lookup.
-- Response-contract correctness: 200 only after the credit is actually applied.
-- Graceful degradation: an orphaned promoter.id (no matching firstPromoterId) -> failed doc +
+- Response-contract correctness: 200 only after the license is actually granted.
+- Graceful degradation: an orphaned customer id (no matching externalCustomerId) -> failed doc +
   non-2xx, no crash.
-- Out-of-scope input handling: non-credit reward units (e.g. free_months) -> log + 200, no
-  credit.
-- Partial-failure tolerance: a Firestore audit-doc failure after a successful Stripe credit
+- Out-of-scope input handling: non-license product types (e.g. entitlement) -> log + 200, no
+  license.
+- Partial-failure tolerance: a database audit-doc failure after a successful provider call
   still returns 200 with a loud logged error (core success doesn't depend on the log write).
-- State consistency: after a successful credit, both the Stripe balance (= -$30) and the
-  referralRewards doc (status = "applied") are verified — not just the HTTP 200.
-- Replay safety under partial failure: covered in a mocked Jest test — Firestore write fails
-  after Stripe succeeds, handler re-invoked with the same fulfilment id, Stripe called exactly
-  once total (idempotency key prevents double-apply on retry).
-- Provenance check: every field read from the webhook and treated as fact (especially
-  promoter.cust_id) is traced back to the code that actually sets it before being relied on.
+- State consistency: after a successful grant, both the provider-side state (= active) and the
+  licenses doc (status = "applied") are verified — not just the HTTP 200.
+- Replay safety under partial failure: covered in a mocked unit test — database write fails
+  after the provider call succeeds, handler re-invoked with the same event id, provider called
+  exactly once total (idempotency key prevents double-apply on retry).
+- Provenance check: every field read from the webhook and treated as fact (especially the
+  customer identifier) is traced back to the code that actually sets it before being relied on.
 
-Doc-code consistency: REFERRAL_BE_ENG_PLAN.md's auth and payload TBDs are marked resolved.
+Doc-code consistency: ENG_PLAN.md's auth and payload TBDs are marked resolved.
 
-Constraints: do not modify applyStripeReferralCredit.js, validateReferralCode.js,
-registerReferral.js, or firstPromoterClient.js.
+Constraints: do not modify billingClient.js, validateEntitlement.js, registerCustomer.js, or
+providerClient.js.
 
-Boundaries: no deploys, no FirstPromoter dashboard changes, no prod secrets.
+Boundaries: no deploys, no provider dashboard changes, no prod secrets.
 
 Give-up condition: after 3 consecutive emulator-script runs with the same checks still failing,
 stop and report which checks are red and what was tried.
@@ -173,10 +172,10 @@ stop and report which checks are red and what was tried.
 Each clause is one element or one hard-rule category: the opening sentence is the **outcome**;
 the emulator-script paragraph is the **verification surface**, with each parenthetical mapping to
 a category (idempotency, auth rejection, reverse-lookup → targeting, response codes → contract,
-orphaned promoter → graceful degradation, non-credit units → out-of-scope input, the Firestore
-clause → partial-failure tolerance, the balance+doc clause → state consistency — those last two
-checks actually live in mocked Jest tests, not the emulator script: partial-failure tolerance
-because the emulator's real Firestore connection couldn't be selectively broken for one write,
+orphaned customer → graceful degradation, non-license types → out-of-scope input, the database
+clause → partial-failure tolerance, the state+doc clause → state consistency — those last two
+checks actually live in mocked unit tests, not the emulator script: partial-failure tolerance
+because the emulator's real database connection couldn't be selectively broken for one write,
 and replay safety because re-invoking the handler after a selectively-failed write requires the
 same mock control; the goal text says so instead of dropping either check). The TBD-resolution sentence
 is part of the outcome (doc-code consistency). The "do not modify" list is **constraints**. "No
@@ -187,19 +186,19 @@ paragraph:
 
 | Check | Proves |
 |---|---|
-| Duplicate event posted twice → one credit | Idempotency |
+| Duplicate event posted twice → one license | Idempotency |
 | Missing/wrong secret header → rejected; correct header → accepted | Auth actually works |
-| Seeded `firstPromoterId` → credit lands on that exact uid | Reverse-lookup correctness |
-| 200 only after credit applied | Matches the vendor's retry contract |
-| Orphaned `promoter.id` (no matching record) → failed doc + non-2xx, no crash | Graceful failure, not silent drop |
-| Non-credit `unit` (e.g. `free_months`) → log + 200, no credit applied | Doesn't misapply wrong reward type |
-| Stripe credit succeeds, Firestore log write fails → still returns 200, logs loudly | Core success ≠ logging success |
-| Stripe balance = -$30 AND referralRewards doc status = "applied" after success | Both stores consistent, not just primary |
-| Firestore write fails after Stripe succeeds → retry → Stripe called once total | Replay safety: idempotency key prevents double-apply |
+| Seeded `externalCustomerId` → license lands on that exact uid | Reverse-lookup correctness |
+| 200 only after license granted | Matches the vendor's retry contract |
+| Orphaned customer id (no matching record) → failed doc + non-2xx, no crash | Graceful failure, not silent drop |
+| Non-license `type` (e.g. `entitlement`) → log + 200, no license applied | Doesn't misapply wrong product type |
+| Provider call succeeds, database log write fails → still returns 200, logs loudly | Core success ≠ logging success |
+| Provider state = active AND licenses doc status = "applied" after success | Both stores consistent, not just primary |
+| Database write fails after provider succeeds → retry → provider called once total | Replay safety: idempotency key prevents double-apply |
 | Eng-plan TBDs marked resolved | Doc-code consistency |
 
 All these checks lived in **one** emulator script as sequential assertions, not one script per
-check — matching this repo's one-file-per-function test-script pattern.
+check — matching the repo's one-file-per-function test-script pattern.
 
 ## Before finalizing
 

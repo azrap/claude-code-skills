@@ -43,9 +43,9 @@ After the architect returns, identify what's genuinely ambiguous vs what's alrea
 
 **Examples of genuine ambiguities (MUST ask):**
 - Architectural tradeoffs: "Should we validate content in the scheduler (fail fast) or in the worker (simpler)?"
-- Performance vs correctness: "9-minute timeout is standard but image generation may need longer - 30min or 60min?"
-- Unknown requirements: "Should this endpoint accept story_ids for manual retries, or just limit?"
-- Database schema unclear: "Does the stories table have a has_images column?"
+- Performance vs correctness: "The default timeout is standard but batch processing may need longer - what limit?"
+- Unknown requirements: "Should this endpoint accept order_ids for manual retries, or just limit?"
+- Database schema unclear: "Does the orders table have an is_archived column?"
 
 **Examples of non-ambiguities (DO NOT ask):**
 - "Should we use logger or print statements?" (logger is best practice)
@@ -71,9 +71,9 @@ Before drafting the plan, verify database schema:
 - Never assume database structure
 
 Examples of questions to ask:
-- "What table stores child data? Is it 'children' or 'child'?"
-- "What columns exist in the stories table? Does it have a 'has_images' column?"
-- "How is cohort filtering implemented - is there a cohort column or is it derived?"
+- "What table stores customer data? Is it 'customers' or 'customer'?"
+- "What columns exist in the orders table? Does it have an 'is_archived' column?"
+- "How is segment filtering implemented - is there a segment column or is it derived?"
 
 ### Step 2.6: Input Validation Review (CRITICAL)
 Before drafting the plan, identify all input validation requirements:
@@ -198,7 +198,7 @@ For each file:
 **Input Validation (if applicable):**
 - List all request parameters with their validation rules
 - Example: `limit` - optional integer, type check only
-- Example: `child_ids` - optional list of strings
+- Example: `order_ids` - optional list of strings
 
 **Implementation:**
 \`\`\`typescript

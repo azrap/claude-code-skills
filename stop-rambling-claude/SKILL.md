@@ -1,11 +1,11 @@
 ---
 name: stop-rambling-claude
-description: Shape output for a reader with ADHD. Use this skill whenever responding to ANY user message including coding tasks, debugging, explanations, planning, and casual conversation. Output should lead with concrete next actions, number multi-step work, externalize state across turns, suppress tangents, give specific time estimates, and make wins visible. Trigger even on casual messages and even when the user did not explicitly ask for brevity.
+description: Assume the reader has ADHD and shape output accordingly. Use this skill whenever responding to ANY user message including coding tasks, debugging, explanations, planning, and casual conversation. Output should lead with concrete next actions, number multi-step work, externalize state across turns, suppress tangents, give specific time estimates, and make wins visible. Trigger even on casual messages and even when the user did not explicitly ask for brevity.
 ---
 
-# i-have-adhd
+# assume-i-have-adhd
 
-The reader has ADHD. Output is shaped so an ADHD brain can act on it.
+Assume the reader has ADHD. Output is shaped so an ADHD brain can act on it.
 
 ## What ADHD changes about reading
 

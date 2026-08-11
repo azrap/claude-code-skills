@@ -65,10 +65,10 @@ For each invariant, answer exactly these questions:
 Use this checklist to find invariants:
 
 - **Client can lie:** `request.data`, cookies, headers, query params, body fields.
-- **Money moves:** Stripe charges, credits, refunds, balance transactions, payouts.
-- **Identity changes:** `uid`, email, customer id, promoter id, account id.
-- **Data is remembered:** Firestore `.create`, `.set`, `.update`, `.add`, deletes.
-- **External systems decide:** Stripe, FirstPromoter, Firebase, Stream, webhooks.
+- **Money moves:** charges, credits, refunds, balance transactions, payouts.
+- **Identity changes:** `uid`, email, customer id, account id.
+- **Data is remembered:** database writes — create, set, update, add, deletes.
+- **External systems decide:** payment providers, third-party APIs, webhooks.
 - **Same event repeats:** retry, idempotency, duplicate, concurrent, replay.
 
 If two or more danger types overlap, review that path deeply.
@@ -76,9 +76,9 @@ If two or more danger types overlap, review that path deeply.
 ## Proof Standards
 
 - **Code proof:** cite the line and translate it. Example: `create()` means the doc
-  must not already exist; ``.doc(`signup_${uid}`)`` chooses one fixed document id.
+  must not already exist; ``.doc(`event_${id}`)`` chooses one fixed document id.
 - **Test proof:** state the setup and assertions. Example: two concurrent calls,
-  one Stripe key, one created doc.
+  one idempotency key, one created doc.
 - **Emulator proof:** prefer actual stdout. If assertions are silent, recommend
   short proof logs for high-risk paths.
 - **Browser proof:** when behavior depends on browser cookies/scripts/storage,

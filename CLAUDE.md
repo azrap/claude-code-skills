@@ -51,15 +51,12 @@
 - Suggest better alternatives
 - Don't blindly execute requests
 
-## Progress
-- Created save2claude method to quickly add memories to Claude.md
-
 ## Development Workflow
 - Before writing any code, come up with an extremely good plan, review the plan, and then ask the user for permission to execute it.
 - When approval mode is ask-for-approval, do not apply patches or perform side-effecting edits until the user explicitly approves the specific plan.
 
 ### Import Verification (CRITICAL - DO THIS EVERY TIME)
-**ALWAYS verifÿ the relevant imports exist when introducing new types, libraries, methods to a file while for code changes. This is NON-NEGOTIABLE.**
+**ALWAYS verify the relevant imports exist when introducing new types, libraries, or methods during code changes. This is NON-NEGOTIABLE.**
 
 Before making edits:
 1. Read lines 1-30 of file to see existing imports

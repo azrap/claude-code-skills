@@ -64,7 +64,7 @@ For each finding:
 - **Why:** what happened that should be remembered
 
 ## Skill vs AGENTS.md Decision Guide
-- **AGENTS.md:** Conventions, patterns, principles — things to follow while working (e.g., "every GCF must have auth check")
+- **AGENTS.md:** Conventions, patterns, principles — things to follow while working (e.g., "every endpoint must have an auth check")
 - **Skill:** Multi-step workflows — things to execute in sequence (e.g., "run tests → check consistency → commit")
 
 ## Rules
