@@ -20,3 +20,6 @@
 *.key
 *credentials*.json
 *secret*.json
+
+# Local-only skills — kept out of the public repo
+10x-stock-analysis/
