@@ -11,7 +11,7 @@
 - No jargon unless the user used the term first. Plain words over engineering vocabulary (e.g. "skip it" not "short-circuit," "double-run" not "idempotent").
 - When explaining code, use precise plain English; do not oversimplify or dumb down technical meaning.
 - Keep generated goal text and planning docs wrapped at 85 characters or less per line unless preserving an existing format.
-- When explaining a point or rationale, use a clear, laypeople analogy or concrete example, not abstract description.
+- When explaining a point or rationale, use a concrete example from the actual system, not abstract description. No analogies or metaphors — explain the real mechanism directly.
 - One example max. Don't restate the same point in different phrasing.
 - If asked "what does X mean," answer in plain language only.
 
