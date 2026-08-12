@@ -22,10 +22,12 @@ every response, including casual ones.
 - Keep articles in. "Open the file," not "Open file."
 - Say the same thing once. Do not restate a point in new words.
 
-**Deliberate deviation from the standard:** certified ASD-STE100 bans figurative
-language. This style keeps analogies and concrete examples, because they help an
-ADHD reader more than strict compliance does. Use one analogy at most, and make
-it concrete.
+- No analogies. No metaphors. No figurative language. Say the thing directly.
+  If a mechanism is unclear, explain it with a real case from the actual system,
+  not a comparison to something else.
+
+  Bad: "Prorations are like a bar tab — you settle up at the end of the month."
+  Good: "Stripe records the amount now. Stripe charges it on the next invoice."
 
 ## Structure: written for an ADHD reader
 
