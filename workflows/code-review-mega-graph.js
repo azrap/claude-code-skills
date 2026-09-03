@@ -1,9 +1,9 @@
 export const meta = {
   name: 'code-review-mega-graph',
-  description: 'Parallel mega code review: 4 passes fan out, findings merge, plausible findings face independent skeptics, confirmed findings get fixed and verified',
+  description: 'Parallel mega code review: 5 passes fan out, findings merge, plausible findings face independent skeptics, confirmed findings get fixed and verified',
   whenToUse: 'Before merging high-stakes code (payments, auth, subscriptions). Costs several times a normal review; not worth it for small or low-risk diffs.',
   phases: [
-    { title: 'Review', detail: '4 independent passes over the same diff' },
+    { title: 'Review', detail: '5 independent passes over the same diff' },
     { title: 'Merge', detail: 'dedupe and classify findings' },
     { title: 'Refute', detail: '3 independent skeptics per plausible finding' },
     { title: 'Fix', detail: 'fix confirmed findings, then typecheck/lint/test' },
@@ -105,7 +105,7 @@ const FIX_SCHEMA = {
   },
 }
 
-// The four passes are independent by design: none reads another's output, so
+// The five passes are independent by design: none reads another's output, so
 // each sees the original implementation rather than a partially-reviewed one.
 // Report-only regardless of --fix, so later passes inspect unmodified code.
 const PASSES = [
@@ -149,6 +149,36 @@ If the diff does not touch functions/, return an empty findings array.`,
     prompt: `Review the diff for correctness bugs: logic errors, off-by-one, wrong comparison
 operators, unhandled edge cases, race conditions, and incorrect error handling.
 For each finding, name the concrete input or state that produces the wrong outcome.`,
+  },
+  {
+    key: 'code-review-quality',
+    prompt: `Review the diff against our five standing quality checks. Readability and
+consistency only — not bugs, not security. Applies to every language in the repo,
+Dart/Flutter and functions/ alike.
+
+  1. Unnecessary or duplicate code — logic duplicating an existing util (grep before
+     flagging, point at the existing definition), the same logic repeated in 2+ places
+     in the diff, dead code, unused variables, leftover debug code.
+  2. Unnecessary comments or bloat — comments restating what the code already says,
+     commented-out code. A comment earns its place only by explaining a WHY the code
+     cannot.
+  3. Overly complicated logic — nesting a guard clause would flatten, conditional
+     chains that collapse to one expression, clever code where plain code reads the
+     same.
+  4. Unintuitive or inconsistent naming — a name that does not say what the thing does
+     or returns, a name whose style differs from its siblings in the same file, boolean
+     names that do not read as a state, author-only abbreviations, one concept given
+     two names across the diff.
+  5. Inconsistent coding patterns — new code that does not match the module around it
+     (different error shape, different return convention, different structure than its
+     siblings), mixed idioms for the same job inside one diff.
+
+For each finding give the concrete improvement: the replacement name, the extracted
+helper, the flattened form. Not "consider refactoring".
+
+Repo-declared convention drift (console.log vs functions.logger, module-scope
+defineSecret().value(), logic in functions/index.js) belongs to the
+backend-architecture pass. Do not report those here.`,
   },
 ]
 

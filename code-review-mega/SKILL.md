@@ -1,6 +1,6 @@
 ---
 name: code-review-mega
-description: Run a comprehensive, high-effort review by combining simplify, security-review, code-review-backend-architecture, and code-review. Use when the user invokes /code-review-mega, asks for a mega or exhaustive code review, or requests all four review passes together. Accept an optional --fix flag to fix only confirmed, high-likelihood findings while reporting verified plausible findings without fixing them.
+description: Run a comprehensive, high-effort review by combining simplify, security-review, code-review-backend-architecture, code-review, and code-review-quality. Use when the user invokes /code-review-mega, asks for a mega or exhaustive code review, or requests all five review passes together. Accept an optional --fix flag to fix only confirmed, high-likelihood findings while reporting verified plausible findings without fixing them.
 ---
 
 # Mega Code Review
@@ -17,12 +17,13 @@ Review the current diff at high effort and write a final report.
 
 ## Run review passes
 
-Run these four passes at high effort:
+Run these five passes at high effort:
 
 1. `/simplify`
 2. `/security-review`
 3. `/code-review-backend-architecture`
 4. `/code-review`
+5. `/code-review-quality`
 
 Use each available skill's actual instructions. Keep every pass within the same review
 scope. Collect findings before changing code so later passes inspect the original
@@ -99,6 +100,7 @@ this skill if present. Use this structure:
 - security-review: completed | skipped | failed
 - code-review-backend-architecture: completed | skipped | failed
 - code-review: completed | skipped | failed
+- code-review-quality: completed | skipped | failed
 
 ## Skipped passes
 - None.
