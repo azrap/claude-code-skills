@@ -28,26 +28,48 @@ Routes hold no business logic. Services hold no HTTP.
 
 ## 1. Auth — every endpoint, first
 
-Every endpoint outside `/health*` takes the auth dependency. The caller sends
-`Authorization: Bearer <Identity Platform ID token>`; the dependency verifies it and returns
-the uid. No flag turns this off.
+Every endpoint outside `/health*` takes the auth dependency. The caller sends a bearer
+token; the dependency verifies it and returns an `AuthCaller` (role + id), never a bare
+uid. Members and coaches send an Identity Platform ID token. Cloud Scheduler and
+Pathfinder send a Google OIDC token and have no uid. One dependency handles both. No
+flag turns this off.
 
 ```python
+from enum import StrEnum
 from typing import Annotated
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import BaseModel
 
 bearer = HTTPBearer()
 
-def current_uid(
+class AuthCallerRole(StrEnum):
+    MEMBER = "member"
+    COACH = "coach"
+    SERVICE = "service"
+
+class AuthCaller(BaseModel):
+    role: AuthCallerRole
+    id: str  # uid for member/coach; service name for service
+
+def current_caller(
     creds: Annotated[HTTPAuthorizationCredentials, Depends(bearer)],
-) -> str:
-    # firebase_admin.auth.verify_id_token — add firebase-admin to pyproject first
+) -> AuthCaller:
+    # Try firebase_admin.auth.verify_id_token, then google.oauth2.id_token.verify_oauth2_token.
+    # Add firebase-admin to pyproject first.
     ...
-    return uid
+
+def require(*roles: AuthCallerRole):
+    def check(caller: Annotated[AuthCaller, Depends(current_caller)]) -> AuthCaller:
+        if caller.role not in roles:
+            raise HTTPException(status_code=403, detail="forbidden_for_role")
+        return caller
+    return check
 
 @router.get("/members/me/week")
-def week(uid: Annotated[str, Depends(current_uid)]) -> WeekResponse:
+def week(
+    caller: Annotated[AuthCaller, Depends(require(AuthCallerRole.MEMBER))],
+) -> WeekResponse:
     ...
 ```
 
@@ -63,7 +85,9 @@ dependency.
 Override the dependency in tests. Nothing in `app/` changes.
 
 ```python
-app.dependency_overrides[current_uid] = lambda: "test-uid"
+app.dependency_overrides[current_caller] = lambda: AuthCaller(
+    role=AuthCallerRole.MEMBER, id="test-uid"
+)
 ```
 
 For manual calls, get a real token for a test account and paste it into the
@@ -93,9 +117,17 @@ Look it up by uid. See `CLAUDE.md`.
 
 ## 4. Config and secrets
 
-One `Settings` object in `app/core/config.py`, read from environment. No `os.environ` calls
-outside it. Secrets come from Secret Manager on Cloud Run, from `.env` locally; the code
-does not know which.
+One `Settings` class in `app/core/config.py` using `pydantic-settings` (pin `>=2.15,<2.16`).
+It lists every variable the app needs, typed. No `os.environ` calls anywhere else.
+
+Values resolve in this order — first match wins:
+
+1. `.env` file (local only, gitignored)
+2. Real environment variable (what Cloud Run sets)
+3. Default on the field (`gcp_project_id` defaults to `matriarchproduct`; `.env` sets `matriarchtest` locally)
+
+A missing required field fails at startup, not mid-request. Secrets come from Secret
+Manager on Cloud Run and from `.env` locally; the code does not know which.
 
 ## 5. External API calls
 
