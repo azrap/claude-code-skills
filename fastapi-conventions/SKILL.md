@@ -115,6 +115,16 @@ enforces.
 Never accept a server-known id from the client (Stripe customer id, coach id, cohort).
 Look it up by uid. See `CLAUDE.md`.
 
+## Reuse and nesting
+
+- Before adding a model, validator, or helper, search existing code. Reuse it when
+  its meaning and validation match.
+- Extract shared logic before adding a second copy.
+- Use nested models for distinct objects, such as a workout's content links. Avoid
+  wrapper models that add no meaning.
+- Do not force reuse by making required fields optional or adding unrelated fields.
+- Follow the project's folder rules; model nesting does not require extra folders.
+
 ## 4. Config and secrets
 
 One `Settings` class in `app/core/config.py` using `pydantic-settings` (pin `>=2.15,<2.16`).
