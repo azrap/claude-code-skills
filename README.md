@@ -8,9 +8,7 @@ Each skill is a directory containing a `SKILL.md` with YAML frontmatter (name + 
 
 ### Engineering workflow
 
-- **[pr-plan](./pr-plan)** — Build detailed PR implementation plans by asking clarifying questions one-by-one, self-reviewing for consistency, simplicity, and DRY before generating an editable markdown file. Uses the architect subagent for exploration.
 - **[pr-summary](./pr-summary)** — Generate a brief, structured PR summary in markdown.
-- **[refactor-plan](./refactor-plan)** — Produce structured refactor plans for replacing old implementations with new code, with verification steps so nothing is left half-migrated.
 - **[repo-review](./repo-review)** — Walk through an unfamiliar repo and produce a structured breakdown: what it is, structure, how it works, key design decisions, and gaps. *(Third-party skill, kept for reference.)*
 - **[gpr](./gpr)** — Git pull rebase. Updates the current branch with latest `main` and walks through conflict resolution.
 - **[skill-creator](./skill-creator)** — Scaffolds new skills with the correct `SKILL.md` structure, YAML frontmatter, and templates.
@@ -69,10 +67,8 @@ Instructions for Claude...
 ├── gpr/
 ├── last30days/
 ├── minimalist-entrepreneur/
-├── pr-plan/
 ├── pr-summary/
 ├── prd-generator/
-├── refactor-plan/
 ├── repo-review/
 └── skill-creator/
 ```
