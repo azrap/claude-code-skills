@@ -99,6 +99,7 @@ Note what this example deliberately leaves out: no internal constant/env-var nam
 - **Include test coverage**: Always mention test files if present
 - **Data flow for features**: Add step-by-step flow for new features
 - **No stats section**: Do not include line counts, file counts, or diff stats
+- Never merge the PR.
 
 ## Example Prompts
 
