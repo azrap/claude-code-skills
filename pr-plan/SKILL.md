@@ -1,283 +1,128 @@
 ---
 name: pr-plan
-description: "Creates detailed PR implementation plans by asking clarifying questions one-by-one, self-reviewing for consistency/simplicity/DRY, then generating a markdown file you can edit. Uses architect agent for exploration."
+description: "Create a repository-grounded PR implementation plan, resolve real ambiguities one at a time, review the plan, and save it after approval."
 ---
 
-# pr-plan
+# PR Plan
 
-You are helping create a detailed PR implementation plan. Follow this exact workflow:
+Create a verified implementation plan. Do not change implementation files.
 
-## Workflow
+## 1. Explore
 
-### Step 1 - MANDATORY: Launch Architect Agent NOW
+Before asking questions:
 
-**Before doing ANYTHING else, you MUST use the Task tool to launch the architect subagent:**
+- Read `AGENTS.md`, `CLAUDE.md`, and relevant `docs/`.
+- Inspect the affected code, tests, configuration, and similar implementations.
+- Verify every referenced file, function, type, field, and dependency.
+- Search for shared code that we should reuse.
+- Use the exploration tools available in the current environment.
+- Delegate a bounded exploration task only when agent tools are available and useful.
 
-```
-Task(
-  subagent_type="architect",
-  prompt="Explore the codebase for [user's request]. Find existing patterns, utilities, database schema, and similar implementations.",
-  description="Architect codebase exploration"
-)
-```
+Do not require a specific tool or agent.
 
-**DO NOT skip this step. DO NOT ask questions first. DO NOT draft a plan first.**
+## 2. Resolve Ambiguities
 
-Launch the architect agent IMMEDIATELY as your first action.
+Separate findings into:
 
-Only after the architect returns should you proceed to Step 2.
+- Verified facts
+- Decisions required
+- Unresolved facts
 
-### Step 2: Ask Clarifying Questions (ONE AT A TIME)
+Verify facts from the repository before asking the user.
 
-After the architect returns, identify what's genuinely ambiguous vs what's already clear from:
-- Existing codebase patterns (the architect just explored these)
-- Best practices (e.g., "use logger" is obvious)
-- What the user already specified
-- Common sense (e.g., "include IDs in error messages for debugging")
+When a decision is required:
 
-**MUST ask questions when there is genuine ambiguity** - architectural decisions with real tradeoffs, missing requirements, or multiple valid approaches.
+- Ask one question at a time.
+- Give the valid options and tradeoffs.
+- Recommend one option.
+- Apply the answer before asking the next question.
 
-**Examples of genuine ambiguities (MUST ask):**
-- Architectural tradeoffs: "Should we validate content in the scheduler (fail fast) or in the worker (simpler)?"
-- Performance vs correctness: "The default timeout is standard but batch processing may need longer - what limit?"
-- Unknown requirements: "Should this endpoint accept order_ids for manual retries, or just limit?"
-- Database schema unclear: "Does the orders table have an is_archived column?"
+Do not ask about choices already established by repository conventions.
 
-**Examples of non-ambiguities (DO NOT ask):**
-- "Should we use logger or print statements?" (logger is best practice)
-- "Should we include IDs in error messages?" (yes, for debugging)
-- "Should we validate inputs?" (obviously yes)
-- "Should we early return on empty results?" (standard pattern)
-- "What directory name?" (when docs already specify it)
+If a fact cannot be verified, mark it as unresolved. Do not invent it.
 
-**Ask questions one at a time.** Wait for each answer before asking the next. When asking, provide options with tradeoffs and your recommendation.
+## 3. Run Relevant Checks
 
-**If something seems like a poor approach, say so:** "That would create a circular dependency. Consider X instead."
+Always check:
 
-**Continue until all genuine ambiguities are resolved.** DO NOT use TODO placeholders instead of asking.
+- Existing code that can be reused
+- Callers and dependencies affected by the change
+- Tests and documentation that must change
+- Simpler approaches
+- Duplicate logic
 
-Only after ambiguities are resolved should you proceed to Step 3.
+Apply these checks only when relevant:
 
-### Step 2.5: Database Schema Verification (CRITICAL)
-Before drafting the plan, verify database schema:
+- API changes: inputs, validation, authorization, errors, and repeat requests
+- Database changes: schema, types, queries, indexes, and migrations
+- External services: current API version, failure handling, and retries
+- Renames: direct references, types, strings, imports, exports, tests, and mocks
 
-- MUST verify table names, column names, and data types exist before writing queries
-- Ask user questions about database names and schemas of anything you don't know for sure
-- Use TODO placeholders if schema unknown after asking
-- Never assume database structure
+## 4. Draft the Plan
 
-Examples of questions to ask:
-- "What table stores customer data? Is it 'customers' or 'customer'?"
-- "What columns exist in the orders table? Does it have an 'is_archived' column?"
-- "How is segment filtering implemented - is there a segment column or is it derived?"
+Use this structure:
 
-### Step 2.6: Input Validation Review (CRITICAL)
-Before drafting the plan, identify all input validation requirements:
+# PR Implementation Plan: [Feature]
 
-- List ALL request parameters this endpoint/function will accept
-- For each parameter, specify:
-  - Expected type (int, string, list, dict, etc.)
-  - Validation rules (type check, bounds, format, required vs optional)
-  - Error response for invalid input
-- Ask user about validation requirements if unclear
+## Executive Summary
 
-Examples of questions to ask:
-- "What parameters does this endpoint accept? Are they optional or required?"
-- "What should the error response be for invalid input types?"
-- "Are there format requirements (e.g., email format, UUID format)?"
-- "Should there be bounds checking or just type validation?"
+- One line for each decision.
 
-**The plan MUST include input validation code for all parameters.**
+## File Tree
 
-### Step 2.7: Proactive Improvement Check (MANDATORY)
-Before drafting, list ways the proposed approach could be improved or simplified. Present to user before proceeding. Examples:
-- "We could skip X because Y already handles it"
-- "This would be simpler as a single function instead of two"
-- "The retry logic should include an idempotency key to prevent duplicates"
+Use these markers:
 
-### Step 3: Draft the Plan
-Create a draft plan with all required sections (see template below).
+- `UPDATE`
+- `NEW`
+- `DELETE`
 
-### Step 4: Self-Review (CRITICAL)
-Before finalizing, review your draft plan and check:
+## Current Behavior
 
-**Consistency:**
-- Are file paths correct and consistent?
-- Do all referenced functions/files actually exist?
-- Does the plan follow the codebase conventions?
-
-**Simplicity:**
-- Is this the simplest solution that works?
-- Are there unnecessary abstractions?
-- Can any steps be removed without losing functionality?
-
-**DRY (Don't Repeat Yourself):**
-- Is existing code being reused instead of duplicated?
-- Are there shared utilities that should be leveraged?
-- Does this create any new duplication?
-
-**Code Duplication Detection:**
-- Does this implementation duplicate logic from other files? (e.g., date parsing, calculations, transformations)
-- Search codebase for similar patterns that could be shared
-- Should any of this new code be extracted to a shared utility?
-- If duplication found, add creating a shared utility to the plan
-
-**No Over-Engineering:**
-- Are we creating new classes when simple functions work?
-- Are we adding complexity that isn't needed?
-- Does this solve ONLY the problem at hand?
-
-**Input Validation:**
-- Does the plan include validation for ALL request parameters?
-- Are validation rules clearly specified (type, bounds, format)?
-- Is error handling defined for invalid inputs?
-
-**Database Schema:**
-- No made-up database tables/columns - verified or marked TODO
-
-**Completeness:**
-- All requirements discussed with user are included in plan
-
-If you find issues, revise the plan. Show your self-review findings to the user before finalizing.
-
-### Step 5: Save the File
-Write the complete, reviewed plan to a markdown file in the project:
-- Filename: `PR_PLAN_[feature-name].md` or `docs/IMPLEMENTATION_PLAN.md`
-- Tell user where you saved it
-- User can now edit the file
-
-## Plan Template
-
-```markdown
-# PR Implementation Plan: [Feature Name]
-
-## File Tree of Changes
-
-Show all affected files with markers:
-- UPDATE = modify existing file
-- NEW = create new file
-- DELETE = remove file
-
-Example:
-\`\`\`
-/src
- ├── services
- │    ├── UPDATE user.service.ts
- │    └── NEW payment.service.ts
- ├── utils
- │    └── DELETE legacy-helpers.ts
- └── UPDATE index.ts
-\`\`\`
+- State the verified behavior that will change.
 
 ## Shared Code Survey
 
-CRITICAL: List existing code to reuse BEFORE detailing changes:
-- Existing utilities that should be reused
-- Patterns to follow from the codebase
-- Functions/classes that already exist
-- What NOT to duplicate
+- List existing code and patterns we will reuse.
+- State any duplication we will remove or avoid.
 
-Example:
-- `utils/validation.ts` - Use existing `validateEmail()`
-- `services/base.service.ts` - Extend BaseService class
-- `types/user.ts` - Use existing User interface
-
-## File-by-File Change Plan
+## File-by-File Changes
 
 For each file:
 
-### File: `path/to/file.ts` (ACTION)
+- Full path and action
+- Exact behavior change
+- Relevant validation and error handling
+- Dependencies and side effects
+- A short code snippet only when it clarifies the change
 
-**Changes:**
-- Bullet points explaining what changes
+## Validation
 
-**Input Validation (if applicable):**
-- List all request parameters with their validation rules
-- Example: `limit` - optional integer, type check only
-- Example: `order_ids` - optional list of strings
+- Tests
+- Type checks
+- Lint and format checks
+- Emulators or external verification when required
+- Documentation consistency checks
 
-**Implementation:**
-\`\`\`typescript
-// Code snippet showing main changes
-\`\`\`
+## Risks and Unresolved Facts
 
-**Anti-patterns avoided:**
-- NOT creating new X - using existing Y
-- NOT calling nonexistent function Z
-- NOT duplicating logic from file.ts - creating shared utility instead
+- List only items that remain unresolved.
 
-## Rationale & Context
+## 5. Review
 
-- **Why**: Reasoning for each major decision
-- **Dependencies**: What depends on these changes
-- **Side effects**: Potential impacts on other code
-- **Testing**: How to validate (unit tests, integration tests, manual steps)
+Before presenting the plan, verify:
 
-## Pre-Implementation Checklist
+- Every referenced item exists or is marked unresolved.
+- The plan follows repository conventions.
+- The design is the simplest solution that meets the requirement.
+- Existing code is reused.
+- Validation and failure handling are covered when relevant.
+- Tests and documentation remain consistent with the code.
 
-- [ ] All ambiguities clarified
-- [ ] Existing patterns are being reused
-- [ ] No functions called that don't exist
-- [ ] No unnecessary classes created
-- [ ] This is the simplest viable solution
-```
+Revise the plan when the review finds a problem.
 
-## Communication Style
+## 6. Present and Save
 
-- Use neutral language - no filler phrases like "Great question!" or "Absolutely!"
-- State confidence level when uncertain: "This might work, but I'm not certain about..."
-- Propose alternatives when requested approach has issues
-- Push back on bad ideas: "This creates tight coupling. Consider X instead."
-
-## Anti-Patterns to Flag
-
-- Calling non-existent functions without creating them first
-- Creating unnecessary classes when existing ones work
-- Circular dependencies
-- Tight coupling without interfaces
-- Missing error handling
-
-## Before Finalizing
-
-Ask yourself:
-1. Are there ambiguities I should clarify?
-2. Am I reusing existing patterns?
-3. Am I fabricating anything or calling functions that don't exist?
-4. Have I identified potential issues?
-5. Is this the simplest solution?
-
-## Critical Rules
-
-✅ **ALWAYS:**
-- Survey existing shared files to reuse
-- Verify functions/classes exist before referencing
-- Self-review for consistency, simplicity, DRY
-- Ask questions when unclear
-- Propose simple solutions that make sense
-
-❌ **NEVER:**
-- Fabricate files/functions that don't exist
-- Skip the self-review step
-- Over-engineer solutions
-- Create new utilities when existing ones work
-- Call nonexistent functions
-- Make assumptions without asking
-- Assume database schema - ask questions, then use TODO placeholders for unknowns
-- Forget requirements brought up by user after discussing them
-
-## Example Flow
-
-User: "Add email validation to registration"
-
-You:
-1. Launch architect agent to explore codebase
-2. Ask: "Should we use the existing validation util or create new?"
-3. Ask: "Where should validation errors be logged?"
-4. Ask: "Should this be sync or async?"
-5. Draft the plan
-6. **Self-review:**
-   - "Found inconsistency: plan references `validateEmail()` but it doesn't exist - changed to use existing `isValidEmail()` from utils"
-   - "Simplified: removed unnecessary EmailValidator class, using simple function instead"
-   - "DRY: reusing error handling pattern from existing auth code"
-7. Save to `PR_PLAN_email_validation.md`
-8. Tell user: "Plan saved to PR_PLAN_email_validation.md - reviewed for consistency, simplicity, and DRY. You can edit it now."
+- Show the reviewed plan in chat.
+- Ask for approval before writing the Markdown file.
+- After approval, save it to the agreed project path.
+- Report the saved path.
