@@ -40,8 +40,9 @@ Examples:
    evidence-audited, not self-assessed by the model doing the work — a passing test against a
    guessed shape isn't evidence the real thing works.
 3. **Constraints** — already-shipped files/functions that must not change.
-4. **Boundaries** — allowed resources, and explicitly forbidden ones (deploys, prod secrets,
-   external dashboard config) — those are manual, human-gated steps, not autonomous-loop actions.
+4. **Boundaries** — allowed resources and approval checkpoints. Deployment is a checkpoint after
+   verification and authorization. Never access, create, change, rotate, or delete production
+   secrets.
 5. **Iteration policy** — usually left implicit; spell out only if the task's ordering is
    genuinely non-obvious.
 6. **Blocked-stop condition** — stop and report an impasse instead of guessing. Most often needed
@@ -163,7 +164,8 @@ Doc-code consistency: ENG_PLAN.md's auth and payload TBDs are marked resolved.
 Constraints: do not modify billingClient.js, validateEntitlement.js, registerCustomer.js, or
 providerClient.js.
 
-Boundaries: no deploys, no provider dashboard changes, no prod secrets.
+Boundaries: deployment is a checkpoint after verification and authorization. Never access,
+create, change, rotate, or delete production secrets. Do not change the provider dashboard.
 
 Give-up condition: after 3 consecutive emulator-script runs with the same checks still failing,
 stop and report which checks are red and what was tried.
@@ -178,8 +180,9 @@ checks actually live in mocked unit tests, not the emulator script: partial-fail
 because the emulator's real database connection couldn't be selectively broken for one write,
 and replay safety because re-invoking the handler after a selectively-failed write requires the
 same mock control; the goal text says so instead of dropping either check). The TBD-resolution sentence
-is part of the outcome (doc-code consistency). The "do not modify" list is **constraints**. "No
-deploys/dashboard/secrets" is **boundaries**. The final sentence is the **give-up condition**.
+is part of the outcome (doc-code consistency). The "do not modify" list is **constraints**. The
+deployment checkpoint, provider dashboard restriction, and production-secret prohibition are
+**boundaries**. The final sentence is the **give-up condition**.
 
 This was drafted as a table first — check, what it proves — before being folded into one
 paragraph:
@@ -210,7 +213,8 @@ check — matching the repo's one-file-per-function test-script pattern.
 - [ ] Every hard-rule category has been explicitly considered (applies / doesn't apply / covered
       in a different layer than expected).
 - [ ] Constraints name the specific already-shipped files that must not change.
-- [ ] Boundaries forbid deploys, prod secrets, and dashboard changes unless truly needed.
+- [ ] Deployment is a checkpoint after verification and authorization. Production secrets are
+      never accessed, created, changed, rotated, or deleted.
 - [ ] Any unconfirmed external contract (vendor API/webhook shape) was verified against real
       documentation, not assumed — with an implied blocked-stop if live behavior disagrees.
 - [ ] After any fix, the verification surface was re-run end-to-end (not just the fastest/mocked
