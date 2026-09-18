@@ -57,7 +57,11 @@ Follow these steps:
    - `refactor:` for code improvements without behavior changes
    - `docs:` for documentation changes
    - `test:` for test updates
-12. Stage all changes with `git add .`, then create the commit with your generated message.
+12. Stage the intended changes:
+    - If every change shown during preflight belongs in the commit, use `git add -A`.
+    - If unrelated changes exist, stage only the intended files.
+    - Show the staged file list before committing.
+    - Create the commit with the generated message.
 13. Push the commit:
     - If the current branch has an upstream (`git rev-parse --abbrev-ref --symbolic-full-name @{upstream}` succeeds), run `git push`.
     - If there is no upstream, ask the user before running `git push -u origin <branch>` — don't set one silently.
