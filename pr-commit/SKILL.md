@@ -29,14 +29,26 @@ Follow these steps:
    - Output any untested new code and what tests to add, or `none — no new code paths to cover`
    - Skip for doc-only or config-only changes
    - Runs before the test run so newly written tests are included in it
-9. Tests — detect and run the nearest test runner:
-   - If `functions/package.json` exists and changed files are under `functions/`: run `cd functions && npm test`
-   - If `pubspec.yaml` exists and changed files are Dart: run `flutter test`
+9. Validation — prefer the repository's documented check command:
+   - Read the applicable `AGENTS.md` or `CLAUDE.md`, then check the README and standard
+     task files for one documented command that covers the repository's checks (for
+     example, `./scripts/check.sh`). Run that command once and skip checks it already
+     includes.
+   - If the documented command fails, STOP and show the failures. Do NOT proceed with
+     the commit.
+   - If no combined command exists, detect and run the nearest test runner:
+     - If `functions/package.json` exists and changed files are under `functions/`: run `cd functions && npm test`
+     - If `pubspec.yaml` exists and changed files are Dart: run `flutter test`
+     - If `pyproject.toml` exists and changed files are Python: use the package manager
+       configured by the repository to run `pytest`.
    - If tests fail, STOP and show the failures. Do NOT proceed with the commit.
    - If no test runner is found or no test files exist for the changed code, skip this step.
-10. Lint — detect and run the nearest linter, scoped to changed files only:
+10. Lint — unless step 9 already ran the repository's lint and type checks, detect and
+   run the configured checks, scoped to changed files when the repository supports it:
    - If `functions/package.json` has a `lint` script and changed files are under `functions/`: run `cd functions && npx eslint <changed .js files>` (not the whole directory — scope to files actually in this diff, same approach as CI)
    - If `pubspec.yaml` exists and changed files are Dart: run `flutter analyze` (or `dart analyze`)
+   - If `pyproject.toml` exists and changed files are Python: run the configured type,
+     lint, and format checks with the repository's package manager.
    - If lint errors are found in the changed files, STOP and show them. Do NOT proceed with the commit.
    - Do NOT run or report repo-wide lint. Pre-existing lint failures in files outside this diff are known and out of scope — do not fix them or flag them unless the task is explicitly a lint cleanup.
    - If no linter is configured, skip this step.
