@@ -28,13 +28,14 @@ Review both global and project-level config:
 
 **Global (applies to all projects):**
 - `~/.Codex/AGENTS.md` — personal global instructions
-- `~/.Codex/commands/` — global skills/commands
-- `~/.Codex/skills/` — global skills library
+- `~/.claude/skills/` — source for global skills
+- `~/.agents/skills/` — Codex access symlink; do not edit separately
 
 **Project-level (current repo only):**
 - `./AGENTS.md` — project-specific instructions
-- `./.Codex/commands/` — project-specific commands (if exists)
-- `./.Codex/skills/` — project-specific skills (if exists)
+- `./CLAUDE.md` — project-specific Claude instructions
+- `./.claude/skills/` — project-specific Claude skills (if exists)
+- `./.agents/skills/` — project-specific Codex skills (if exists)
 - Memory files — project-specific memory
 
 ## Output Format
