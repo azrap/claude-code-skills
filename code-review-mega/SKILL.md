@@ -25,8 +25,12 @@ Run these five passes at high effort:
 4. `/code-review`
 5. `/code-review-quality`
 
-Use each available skill's actual instructions. Keep every pass within the same review
-scope. Collect findings before changing code so later passes inspect the original
+For each pass, use the project's skill when the repo has one with that name (look in
+`.claude/skills/<name>/SKILL.md` and `.agents/skills/<name>/SKILL.md` at the repo root).
+Read that file and follow it. Use the global skill under `~/.claude/skills/` only when
+the repo has none. Record which one ran in `Pass status`.
+
+Use each skill's actual instructions. Keep every pass within the same review scope. Collect findings before changing code so later passes inspect the original
 implementation.
 
 If `/simplify` normally edits code, run it as a report-only analysis unless `--fix` was
@@ -96,11 +100,11 @@ this skill if present. Use this structure:
 - Mode: report-only | --fix
 
 ## Pass status
-- simplify: completed | skipped | failed
-- security-review: completed | skipped | failed
-- code-review-backend-architecture: completed | skipped | failed
-- code-review: completed | skipped | failed
-- code-review-quality: completed | skipped | failed
+- simplify: completed | skipped | failed — project | global
+- security-review: completed | skipped | failed — project | global
+- code-review-backend-architecture: completed | skipped | failed — project | global
+- code-review: completed | skipped | failed — project | global
+- code-review-quality: completed | skipped | failed — project | global
 
 ## Skipped passes
 - None.
