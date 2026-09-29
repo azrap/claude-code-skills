@@ -46,14 +46,12 @@ You are committing and pushing pending changes in the user's Claude Code skills 
    - Keep it factual and matter-of-fact — no marketing language, no "improve" without specifics, no "enhance".
 
 6. **Stage, commit, push:**
-   ```sh
-   git add -A
-   git commit -m "$(cat <<'EOF'
-   <your generated message>
-   EOF
-   )"
-   git push
-   ```
+   - If every change shown during the repo-state check belongs in the commit, run
+     `git add -A`.
+   - If unrelated changes exist, stage only the intended files.
+   - Run `git diff --cached --stat` and verify the staged files match the intended commit.
+   - Commit with the generated message, then run `git push`.
+
    Use the HEREDOC form so multi-line messages work correctly.
 
 7. **Return to the user's original directory.** `cd` back to the path captured in step 1.
@@ -79,7 +77,8 @@ You are committing and pushing pending changes in the user's Claude Code skills 
 - If there are merge conflicts or the local branch is behind origin, halt and tell the user — let them resolve manually. Do not auto-pull.
 - The repo path is hardcoded to `~/code/claude-code-skills`. If that path doesn't exist or isn't a git repo, halt and report.
 - Never use `git commit --amend`, `--no-verify`, or `git push --force`.
-- Do not run `git add` with specific filenames unless the user asked you to exclude something — `git add -A` covers new, modified, and deleted files in one step.
+- Use `git add -A` only when every pending change belongs in the commit. Otherwise stage only the
+  intended files and leave unrelated changes untouched.
 
 ## Why this skill exists
 
