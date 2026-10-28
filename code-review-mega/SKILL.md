@@ -65,6 +65,21 @@ Promote a verified plausible finding to **Confirmed after second review**. Rejec
 anything that remains hypothetical, depends on unknown runtime behavior without evidence,
 or cannot be tied to the reviewed code.
 
+## Propose solutions for Medium and higher findings
+
+For every surfaced finding rated Medium, High, or Critical, write a proposed solution.
+A one-line recommendation is enough for Low findings.
+
+- Name the files to change and the exact change. Add a short code snippet when the fix
+  is code.
+- Check the solution against the installed library versions and the repo's rules
+  before proposing it. Do not propose a fix from memory.
+- Check that the solution does not create a new finding, such as a wider failure, new
+  duplication, or a broken contract. Say what it changes for callers.
+- Say how to test it.
+- If more than one fix works, recommend one. Give each alternative one line.
+- Without `--fix`, write the proposal only; do not apply it.
+
 ## Fix policy
 
 When `--fix` is absent:
@@ -122,6 +137,7 @@ Continue with:
 - Evidence: ...
 - Impact: ...
 - Recommendation: ...
+- Proposed solution (Medium and higher): files, change, snippet, test, caller impact
 - Fix status: not requested | fixed | not fixed — reason
 
 ## Confirmed after second review
@@ -131,6 +147,7 @@ Continue with:
 - Second-review evidence: ...
 - Impact: ...
 - Recommendation: ...
+- Proposed solution (Medium and higher): files, change, snippet, test, caller impact
 - Fix status: surfaced only; not fixed
 
 ## Fixes applied

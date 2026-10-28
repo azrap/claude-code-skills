@@ -6,6 +6,7 @@ export const meta = {
     { title: 'Review', detail: '5 independent passes over the same diff' },
     { title: 'Merge', detail: 'dedupe and classify findings' },
     { title: 'Refute', detail: '3 independent skeptics per plausible finding' },
+    { title: 'Propose', detail: 'verified proposed solution per upheld medium/high finding' },
     { title: 'Fix', detail: 'fix confirmed findings, then typecheck/lint/test' },
     { title: 'Report', detail: 'write MEGA_CODE_REVIEW_REPORT.md' },
   ],
@@ -42,7 +43,7 @@ const tier = TIERS[tierName]
 
 // xhigh is the documented setting for coding and agentic work; the refute step
 // decides what reaches the user, so it runs at the top of the ladder.
-const EFFORT = { passes: 'high', skeptics: 'xhigh', fix: 'xhigh' }
+const EFFORT = { passes: 'high', skeptics: 'xhigh', propose: 'high', fix: 'xhigh' }
 
 log(`Tier: ${tierName} (passes: ${tier.passes}, skeptics: ${tier.skeptics}) — ${shouldFix ? 'fix confirmed findings' : 'report only'}`)
 
@@ -354,19 +355,75 @@ log(`${survivors.length}/${merged.length} findings survived independent review`)
 if (unverified.length) log(`${unverified.length} could not be checked (agent errors) — reported as unverified`)
 if (droppedInRefute) log(`${droppedInRefute} findings were lost in Refute and are neither upheld nor refuted`)
 
+// The report agent copies data and cannot verify anything, so each upheld
+// medium/high finding gets its own agent to write a checked solution first.
+phase('Propose')
+
+const PROPOSAL_SCHEMA = {
+  type: 'object',
+  required: ['change', 'test', 'callerImpact', 'verifiedAgainst'],
+  properties: {
+    change: { type: 'string', description: 'Files to change and the exact change' },
+    snippet: { type: 'string', description: 'Short code snippet when the fix is code' },
+    test: { type: 'string', description: 'How to test the fix' },
+    callerImpact: { type: 'string', description: 'What the fix changes for callers, and any new risk it adds' },
+    alternatives: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'Other workable fixes, one line each; the main proposal is the recommended one',
+    },
+    verifiedAgainst: { type: 'string', description: 'Installed versions, source files, or repo rules checked' },
+  },
+}
+
+const needsProposal = f => f.severity === 'high' || f.severity === 'medium'
+
+const proposedSurvivors = await parallel(
+  survivors.map(finding => () => {
+    if (!needsProposal(finding)) return Promise.resolve(finding)
+    return agent(
+      `${scope}
+
+Independent review upheld this finding. Propose a solution. Report only; do not
+modify any file.
+
+  Title:      ${finding.title}
+  Location:   ${where(finding)}
+  Evidence:   ${finding.evidence}
+  Impact:     ${finding.impact}${finding.recommendation ? `\n  Suggested:  ${finding.recommendation}` : ''}
+
+- Name the files to change and the exact change. Add a short snippet when it is code.
+- Check the solution against the installed library versions and the repo's rules
+  (CLAUDE.md, AGENTS.md, project skills). Never propose a fix from memory.
+- Check it does not create a new problem, such as a wider failure, new duplication,
+  or a broken contract. Say what it changes for callers.
+- Say how to test it.
+- If more than one fix works, recommend one and list the others in one line each.`,
+      { label: `propose:${where(finding)}`, phase: 'Propose', model: tier.fix, effort: EFFORT.propose, schema: PROPOSAL_SCHEMA }
+    ).then(
+      proposal => ({ ...finding, proposal: proposal ?? null }),
+      () => ({ ...finding, proposal: null })
+    )
+  })
+)
+
+const withProposals = proposedSurvivors.map((f, i) => f ?? survivors[i])
+const proposalsMissing = withProposals.filter(f => needsProposal(f) && !f.proposal).length
+if (proposalsMissing) log(`${proposalsMissing} medium/high findings have no proposal (agent errors)`)
+
 // Fix policy: a finding is fixed only if a pass reported direct code evidence
 // AND it survived refutation. Findings that were merely plausible are reported
 // even after surviving, never auto-fixed.
 phase('Fix')
 
-const fixable = survivors.filter(f => f.confidence === 'confirmed')
-const surfacedOnly = survivors.filter(f => f.confidence !== 'confirmed')
+const fixable = withProposals.filter(f => f.confidence === 'confirmed')
+const surfacedOnly = withProposals.filter(f => f.confidence !== 'confirmed')
 
 let fixResult = null
 
 if (shouldFix && fixable.length > 0) {
   const fixList = fixable
-    .map(f => `- ${where(f)} — ${f.title}\n  Evidence: ${f.evidence}\n  Impact: ${f.impact}${f.recommendation ? `\n  Suggested: ${f.recommendation}` : ''}`)
+    .map(f => `- ${where(f)} — ${f.title}\n  Evidence: ${f.evidence}\n  Impact: ${f.impact}${f.recommendation ? `\n  Suggested: ${f.recommendation}` : ''}${f.proposal ? `\n  Proposed solution: ${f.proposal.change}` : ''}`)
     .join('\n')
 
   fixResult = await agent(
@@ -419,6 +476,7 @@ const reportPayload = {
     unverified: unverified.length,
     refuted: refutedCount,
     lostInRefute: droppedInRefute,
+    proposalsMissing,
     unlocated: unlocated.length,
     fixed: fixResult?.applied?.length ?? 0,
   },
@@ -467,6 +525,9 @@ review upheld them. These are the only ones eligible for auto-fix.
 - Evidence: ...
 - Impact: ...
 - Recommendation: ...
+- Proposed solution (medium and high only): copy the finding's "proposal" field —
+  change, snippet, test, caller impact, alternatives, verified against. If a medium or
+  high finding has no proposal, write "Not available — proposal agent failed."
 - Refutation verdicts: ...
 - Fix status: not requested | fixed | not fixed — reason
 
@@ -489,7 +550,8 @@ refuted, or fixed. List title, found-by, evidence, and impact.
 
 ## Summary
 Counts from the "summary" object. If lostInRefute is above zero, say plainly
-that those findings were lost to agent errors and are unaccounted for.
+that those findings were lost to agent errors and are unaccounted for. If
+proposalsMissing is above zero, say how many medium/high findings have no proposal.
 
 Use "None." for empty sections.
 
