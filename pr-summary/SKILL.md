@@ -11,12 +11,17 @@ Generate a brief, structured PR summary in markdown format.
 
 When user asks to "create a PR summary" or "summarize the PR":
 
-1. Run `git log origin/main..HEAD --oneline` to get commits
-2. Run `git diff origin/main --stat` to get file changes
+1. Resolve the requested PR and read its current title, body, base, head, and status.
+   Use its actual diff, including for merged PRs; do not substitute the current branch.
+2. Inspect changed files and recorded checks. Find the project purpose and Linear
+   project link in the request or existing project records when applicable.
 3. Analyze the key changes
-4. Check for an existing PR on the current branch: `gh pr view --json number,url,body 2>/dev/null`
+4. Use the requested PR. Only when none was specified, check the current branch:
+   `gh pr view --json number,url,body 2>/dev/null`.
    - If a PR exists: write the body to a temp file (via HEREDOC or Write tool)
-     and run `gh pr edit --body-file <path>` to replace its description.
+     and run `gh pr edit --body-file <path>` for that PR to replace its description.
+     A connected GitHub tool may do the same body-only update if the CLI is unavailable.
+     Read the saved body back and validate it against the checklist below.
      Show the user the new body and the PR URL after.
    - If no PR exists: push the branch if needed (`git push -u origin HEAD`),
      then run `gh pr create --title "..." --body-file <path>` targeting main.
@@ -26,80 +31,102 @@ When user asks to "create a PR summary" or "summarize the PR":
 
 ## Format
 
-```markdown
-# PR Summary: [Feature/Fix Name]
-
-## Overview
-[1-2 sentence description of what this PR does and why]
-
-## Key Changes
-
-### Core Implementation
-- **[File.swift]** (+X lines): [What it does]
-- **[File2.swift]**: [Changes made]
-  - [Bullet point details if needed]
-
-### Testing
-- **[TestFile.swift]** (+X lines): [Test coverage description]
-
-### Data Flow (if applicable)
-1. [Step 1]
-2. [Step 2]
-3. [Step 3]
-
-### Bug Fixes (if applicable)
-- [Fix 1]
-- [Fix 2]
-
-```
-
-## Example (good level of detail)
+- Use [Matriarch backend PR #10](https://github.com/MatriarchHealth/matriarch-backend/pull/10)
+  as the canonical structure and level of detail.
+- Start `## Summary` with the larger project goal and verified Linear link when
+  applicable, followed by what this PR adds. For HTTP endpoints, name the method,
+  full path, caller, and result. State deferred or inactive wiring accurately.
+- Add `### Changed file tree` with changed production and documentation paths only.
+  Do not include test files or package marker files.
+- Add separate `### Review order` bullets for significant production files: entry
+  point or orchestrator first, then the files it calls in execution order, then
+  shared dependencies. Use exactly one file and one concise sentence per bullet.
+- Put documentation changes in their own `### Docs` section.
+- End with `## Test plan`. Describe covered behavior and recorded results without
+  listing individual test files.
 
 ```markdown
-# PR Summary: Bulk CSV Import — Backend (PR2)
+## Summary
 
-## Overview
-Adds the backend for bulk CSV member import: validating a file at upload, registering rows with the directory provider, and gating record creation on a well-formed, non-duplicate row.
+[Larger project goal and verified Linear project link when applicable.]
 
-## Key Changes
+[What this PR adds, including endpoint method, path, caller, result, and deferred work.]
 
-### Core Implementation
-- **`functions/import/validateUpload.js`**: Validates a file at upload — schema check plus a provider status call, failing open if the provider is down.
-- **`functions/import/registerRows.js`**: Registers each row with the directory provider, records attribution, and saves the result. Non-blocking and idempotent.
-- **`functions/import/providerClient.js`**: Shared provider API client — create/lookup/track/status calls, with retry and timeout handling.
-- **`functions/import/applyRecordUpdate.js`**: Now gates record creation on server-side validation instead of trusting the client's call order.
-- **`functions/shared/utils.js`**: Shared retry and normalization helpers used across the import functions.
+### Changed file tree
 
-### Testing
-- Full unit coverage for all three functions (auth, idempotency, duplicate rows, retries, outages).
-- Manual emulator scripts that exercise the real functions against provider test accounts.
-
-### Data Flow
-1. User uploads a CSV → validated before proceeding.
-2. Job record created (unchanged).
-3. Rows applied, re-validating each server-side.
-4. User registered with the provider; attribution recorded if present.
-5. Summary email sent later via a provider webhook (PR 3, separate).
-
-### Bug Fixes
-- Duplicate-row guard.
-- Case-insensitive email matching.
-- Provider status check now scoped to the correct workspace.
-- Provider fetch timeout raised after live calls were timing out on success.
+```text
+.
+├── [production path]
+└── [documentation path]
 ```
 
-Note what this example deliberately leaves out: no internal constant/env-var names, no before/after implementation comparisons, no line counts. One sentence per file, one sentence per fix. That level of detail belongs in code comments or an eng-plan doc, not here.
+### Review order
+
+- `[entry-point file]` — [What starts or coordinates the flow.]
+- `[next production file]` — [What it does next.]
+- `[shared dependency]` — [What shared behavior it provides.]
+
+### [Important behavior, if it needs explanation]
+
+- [Short explanation of the behavior, risk, or boundary.]
+
+### Docs
+
+Updates `[documentation path]` to match the implemented behavior and remaining work.
+
+## Test plan
+
+- [x] [Recorded command or check] — [result]
+- [x] [Important behavior covered, without listing test files]
+```
+
+Keep one sentence per production file or behavior. Leave out internal argument names,
+before/after implementation narration, test-file lists, package marker files, and stats.
 
 ## Guidelines
 
+- **Write for a human with no project context**: Apply plain English to every
+  section, including file descriptions and tests. Say who does what and what
+  happens. Replace technical shorthand or explain it where needed.
+- For example, write "repeated reports do not create duplicates; keep any provider
+  confirmation already received" rather than "idempotent webhook-first persistence."
+- Put production files in review order and explain behavior in execution order.
+  Separate work in this PR from later work.
+- Use Bug Fixes only for application bugs that existed before this PR. Omit the
+  section otherwise.
+- Omit self-review fixes entirely. Do not describe fixes made while implementing
+  or reviewing this PR's new code.
 - **Be concise**: Focus on WHAT changed, and WHY it changed, not HOW (code details)
 - **No internal names**: Don't name constants, env vars, or internal function args in the summary — describe behavior, not implementation
 - **Highlight key files**: Only mention files with significant changes
+- **Show the changed structure**: Include a production-and-docs file tree before
+  the review-order bullets; omit tests and package marker files
 - **Group related changes**: Use subsections for organization
-- **Include test coverage**: Always mention test files if present
-- **Data flow for features**: Add step-by-step flow for new features
+- **Include test coverage**: Summarize covered behavior and recorded results, but
+  do not list individual test files
+- **Explain feature flow**: Use short behavior subsections when the flow needs context
 - **No stats section**: Do not include line counts, file counts, or diff stats
 - Never merge the PR.
+
+## Final validation checklist
+
+- [ ] Summary starts with the larger goal and verified Linear project link when applicable.
+- [ ] Summary states what this diff adds, not just what the project will do.
+- [ ] Each added or changed HTTP endpoint has its method and full path stated.
+- [ ] Caller permissions, saved data, and inactive or deferred work match the code.
+- [ ] A changed-file tree shows production and documentation paths only; test and
+      package marker files are omitted.
+- [ ] Separate bullets describe significant production files in reviewer order,
+      with exactly one file and one concise sentence per bullet.
+- [ ] Documentation changes have their own section.
+- [ ] Every file description explains behavior, not just a list of mechanisms.
+- [ ] Read the entire summary as an unfamiliar reviewer: actors, fields, outcomes,
+      and necessary technical terms are clear, and flow steps are in order.
+- [ ] Bug Fixes is absent unless this PR fixes a pre-existing application bug.
+- [ ] Self-review fixes are omitted entirely, with no exceptions or asides.
+- [ ] Tests reported as passed have recorded results; planned or unrun tests are
+      not described as passed. Preserve useful existing limitations and status.
+- [ ] Read back the saved GitHub body and confirm the same structure and facts.
 
 ## Example Prompts
 
