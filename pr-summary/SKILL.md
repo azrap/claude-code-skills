@@ -40,7 +40,8 @@ When user asks to "create a PR summary" or "summarize the PR":
   Do not include test files or package marker files.
 - Add separate `### Review order` bullets for significant production files: entry
   point or orchestrator first, then the files it calls in execution order, then
-  shared dependencies. Use exactly one file and one concise sentence per bullet.
+  shared dependencies. Use a GitHub task checkbox with exactly one file and one
+  concise sentence per bullet, so the reviewer can save their progress.
 - Put documentation changes in their own `### Docs` section.
 - End with `## Test plan`. Describe covered behavior and recorded results without
   listing individual test files.
@@ -62,9 +63,9 @@ When user asks to "create a PR summary" or "summarize the PR":
 
 ### Review order
 
-- `[entry-point file]` — [What starts or coordinates the flow.]
-- `[next production file]` — [What it does next.]
-- `[shared dependency]` — [What shared behavior it provides.]
+- [ ] `[entry-point file]` — [What starts or coordinates the flow.]
+- [ ] `[next production file]` — [What it does next.]
+- [ ] `[shared dependency]` — [What shared behavior it provides.]
 
 ### [Important behavior, if it needs explanation]
 
@@ -117,7 +118,7 @@ before/after implementation narration, test-file lists, package marker files, an
 - [ ] A changed-file tree shows production and documentation paths only; test and
       package marker files are omitted.
 - [ ] Separate bullets describe significant production files in reviewer order,
-      with exactly one file and one concise sentence per bullet.
+      using a task checkbox with exactly one file and one concise sentence per bullet.
 - [ ] Documentation changes have their own section.
 - [ ] Every file description explains behavior, not just a list of mechanisms.
 - [ ] Read the entire summary as an unfamiliar reviewer: actors, fields, outcomes,
