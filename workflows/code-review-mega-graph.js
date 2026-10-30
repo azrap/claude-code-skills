@@ -115,7 +115,9 @@ const PASSES = [
     prompt: `Review the diff for reuse, simplification, efficiency, and altitude cleanups.
 Flag: logic duplicating an existing util or helper, the same validation repeated across
 functions, hardcoded constants already defined elsewhere, and overly complicated logic
-that can be simplified. Grep for existing helpers before flagging duplication.`,
+that can be simplified. Grep for existing helpers before flagging duplication.
+Never flag a simplification that departs from the library's documented recommended
+pattern; check the official docs first. Fewer lines is not a reason to deviate.`,
   },
   {
     key: 'security-review',
@@ -491,7 +493,7 @@ const REPORT_SCHEMA = {
     markdown: { type: 'string', description: 'The full report, identical to the file contents' },
     chatSummary: {
       type: 'string',
-      description: 'Short markdown summary for the chat session: counts, then one line per upheld finding as "path:line — title". A few lines, not the full report.',
+      description: 'Short markdown summary for the chat session: counts, then each medium/high finding as two lines ("**Issue:** ..." then "**Fix:** ..."), then low findings grouped on one line. Not the full report.',
     },
   },
 }
@@ -556,8 +558,13 @@ proposalsMissing is above zero, say how many medium/high findings have no propos
 Use "None." for empty sections.
 
 Return the file's exact contents in "markdown", and a short "chatSummary" for the
-session: the counts, then one line per upheld finding. Set "written" true only if
-the file was actually written.`,
+session: the counts, then each medium or high finding as two lines,
+
+  1. **Issue:** one line saying what is wrong (path:line)
+     **Fix:** one line with the recommended fix
+
+then low findings grouped on one line. Set "written" true only if the file was
+actually written.`,
   { label: 'report', phase: 'Report', model: 'sonnet', effort: 'low', schema: REPORT_SCHEMA }
 )
 
