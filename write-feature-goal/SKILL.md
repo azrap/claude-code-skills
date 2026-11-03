@@ -21,11 +21,35 @@ Before finalizing a runnable goal:
 Do not present a goal as final or ready to run while material questions remain. A preliminary
 version must be labeled **Draft — blocked on open questions** and list what still needs an answer.
 
+## Clear blockers before starting this goal
+
+1. Walk through this goal from implementation to final proof and delivery. List
+   only the decisions, permissions and access those steps require.
+2. Verify what can be checked directly. For computer use, check the actual app,
+   browser profile and window. For external systems, check the product, account,
+   test project and database. Request available access prompts up front.
+3. Carry forward permissions already granted for this goal. Ask for all remaining
+   decisions and permissions in one request before starting. Name the action,
+   target and limits. For signing, name the signer, document, recipient, number
+   of submissions and any spending cap. For publishing, name the destination,
+   audience and evidence that may be shared.
+4. Record the answers in the goal. Honor them on retries, handoffs and resumes
+   within the approved scope. Ask again only for a change in scope or a fresh
+   confirmation the tool requires. Accept a clear answer in context.
+5. If a tool requires confirmation at the moment of action, identify it up
+   front. Agree before starting whether to use that checkpoint or an available
+   method that proves the same outcome. Keep the goal in draft until foreseeable
+   blockers are resolved or the user accepts the named checkpoint.
+
 ## Required skills gate
 
 Before finalizing a runnable goal, identify which skills apply and add a **Required skills**
 section to the goal. For each skill, state what it must be used for. If no skills apply, write
 `Required skills: none`.
+
+If this goal creates or updates a pull request, require
+[pr-summary](../pr-summary/SKILL.md) to write the PR description from its actual
+diff and verified results, then read back the saved description.
 
 Examples:
 
