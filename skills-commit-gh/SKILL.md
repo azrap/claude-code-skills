@@ -25,7 +25,7 @@ You are committing and pushing pending changes in the user's Claude Code skills 
 4. **Generate a commit message from the diff.** Read what actually changed and write a message that reflects it.
    - Format: short imperative subject line (under 70 chars), optional body for context if multiple things changed.
    - Examples of good subjects:
-     - `tighten pr-plan clarifying-questions step`
+     - `tighten pr-summary output rules`
      - `add prd-generator examples`
      - `fix typo in mvp skill`
      - `remove repo-review skill`
@@ -34,7 +34,7 @@ You are committing and pushing pending changes in the user's Claude Code skills 
      ```
      update multiple skills
 
-     - pr-plan: add self-review checklist
+     - pr-summary: add output checklist
      - mvp: tighten Stage 2 description
      - README: update skill index
      ```
@@ -64,7 +64,7 @@ You are committing and pushing pending changes in the user's Claude Code skills 
 
    Example:
    ```
-   Pushed: "tighten pr-plan clarifying-questions step" (a3f2b1c)
+   Pushed: "tighten pr-summary output rules" (a3f2b1c)
    → https://github.com/azrap/claude-code-skills
    Back in /Users/azra/some/project
    ```

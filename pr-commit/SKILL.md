@@ -11,7 +11,7 @@ and ask the user whether to fix before committing or proceed anyway.
 
 Follow these steps:
 
-1. Branch guard — run `git branch --show-current`. If on `main` or `master`, STOP and warn the user: "You're on main — switch to a feature branch before committing." Do NOT proceed with any commit.
+1. Branch guard — run `git branch --show-current`. If on `main` or `master`, STOP and warn the user: "You're on main — switch to a feature branch before committing." Do NOT proceed with any commit. If the branch has a PR, run `gh pr view --json state` and STOP unless it is `OPEN`; pushing to a closed or merged PR's branch strands the commits.
 2. Preflight — run `git status --short` and show it to the user. Confirm what's staged, unstaged, and untracked before staging or committing anything, so there's no ambiguity about what will be included.
 3. Read the diff — run `git diff` (and `git diff --staged` if anything is already staged). Steps 4–8 all read this diff; do not run them before this step.
 4. Quality — review the diff for anything over-engineered, inconsistent with surrounding code, or that could be simpler. Also flag unnecessary code and comments that just restate the code. Output the list, or `none — no quality issues found`.

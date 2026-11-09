@@ -9,7 +9,7 @@ Generate a brief, structured PR summary in markdown format.
 
 ## Usage
 
-When user asks to "create a PR summary" or "summarize the PR":
+Use this format when opening a PR, writing its description, or summarizing an existing PR:
 
 1. Resolve the requested PR and read its current title, body, base, head, and status.
    Use its actual diff, including for merged PRs; do not substitute the current branch.
@@ -44,7 +44,9 @@ When user asks to "create a PR summary" or "summarize the PR":
   concise sentence per bullet, so the reviewer can save their progress.
 - Put documentation changes in their own `### Docs` section.
 - End with `## Test plan`. Describe covered behavior and recorded results without
-  listing individual test files.
+  listing individual test files. When independent verification was performed, preserve
+  or add the evidence block below inside the test plan. If verification was requested
+  but no results are available, state what remains unverified. Omit it otherwise.
 
 ```markdown
 ## Summary
@@ -79,6 +81,15 @@ Updates `[documentation path]` to match the implemented behavior and remaining w
 
 - [x] [Recorded command or check] — [result]
 - [x] [Important behavior covered, without listing test files]
+
+**Independent verification on `[tested commit]`**
+
+[Who verified it, when, and on which real app or test environment. Include relevant
+backend revision, ruleset, or test cost only when they clarify what was verified.]
+
+| Check | Observed |
+| --- | --- |
+| [Behavior or failure exercised] | [What the verifier actually saw or independently read.] |
 ```
 
 Keep one sentence per production file or behavior. Leave out internal argument names,
@@ -127,6 +138,8 @@ before/after implementation narration, test-file lists, package marker files, an
 - [ ] Self-review fixes are omitted entirely, with no exceptions or asides.
 - [ ] Tests reported as passed have recorded results; planned or unrun tests are
       not described as passed. Preserve useful existing limitations and status.
+- [ ] Independent verification names the tested commit and separates observed results
+      from expectations. Preserve useful existing evidence and redact private data.
 - [ ] Read back the saved GitHub body and confirm the same structure and facts.
 
 ## Example Prompts

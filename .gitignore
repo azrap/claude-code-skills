@@ -23,3 +23,6 @@
 
 # Local-only skills — kept out of the public repo
 10x-stock-analysis/
+
+# Anthropic skills synced from claude.ai; refreshed by Claude Code, not ours
+synced/

@@ -1,6 +1,6 @@
 ---
 name: code-review-quality
-description: Review a diff against our core code quality standards — duplicate code, comment bloat, overcomplicated logic, unintuitive naming, and inconsistent patterns. Language-agnostic; covers Flutter and functions/ alike. Use when the user invokes /code-review-quality, asks for a quality or readability review, or as a pass inside /code-review-mega.
+description: Review a diff against our core code quality standards — duplicate code, comment bloat, overcomplicated logic, unintuitive naming, and inconsistent patterns. Applies to any language. Use when the user invokes /code-review-quality, asks for a quality or readability review, or as a pass inside /code-review-mega.
 ---
 
 # Code Review — Quality Standards
@@ -11,7 +11,7 @@ consistency pass, not a bug hunt and not a security review.
 ## Scope
 
 - Review only new additions and changes in the diff, not entire files.
-- Applies to every language in the repo — Dart/Flutter and `functions/` alike.
+- Applies to every language in the repo.
 - Preserve the user's requested diff, branch, PR, commit, or file scope. If none is
   given, review the current working-tree and staged diff.
 
@@ -53,9 +53,9 @@ consistency pass, not a bug hunt and not a security review.
 - Mixed idioms for the same job inside one diff (e.g. some async/await, some `.then`).
 - Formatting or structure that fights the file's existing convention.
 
-Repo-declared convention drift (`console.log` vs `functions.logger`, module-scope
-`defineSecret().value()`, logic in `functions/index.js`) belongs to
-`code-review-backend-architecture`. Do not duplicate those findings here.
+Drift from conventions the repo documents (its logging, settings, or file-layout
+rules) belongs to `code-review-backend-architecture`. Do not duplicate those
+findings here.
 
 ## Reporting
 

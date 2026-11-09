@@ -48,6 +48,9 @@ Never silently omit a pass.
   - **Confirmed / high likelihood**: direct code evidence shows the issue is present.
   - **Plausible**: the issue initially appears possible but needs another review.
   - **Rejected**: evidence disproves the issue or it is only speculative.
+- Reject any simplification that departs from the library's documented recommended
+  pattern. Check the official docs before surfacing a simplification; fewer lines is
+  not a reason to deviate.
 - Do not surface rejected findings.
 
 ## Double-review plausible findings
@@ -167,4 +170,12 @@ Continue with:
 ```
 
 Use `None.` for empty sections. Report only findings grounded in the reviewed code. After
-writing the file, give the user a concise summary and link to the report.
+writing the file, give the user a concise summary and link to the report. In the
+summary, list each Medium or higher finding as two lines:
+
+```markdown
+1. **Issue:** one line saying what is wrong
+   **Fix:** one line with the recommended fix
+```
+
+Group Low findings in one short line or omit them.
