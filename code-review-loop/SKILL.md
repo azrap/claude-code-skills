@@ -12,7 +12,7 @@ Medium or higher is left.
 
 - Scope: a PR number, branch, or the current diff. If none is given, use the current
   branch's open PR, else the working-tree and staged diff.
-- Optional `--max-rounds N` (default 5).
+- Optional `--max-rounds N` (default 3).
 
 ## Before the first round
 
