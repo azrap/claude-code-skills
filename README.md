@@ -11,6 +11,7 @@ Each skill is a directory containing a `SKILL.md` with YAML frontmatter (name + 
 - **[pr-summary](./pr-summary)** — Generate a brief, structured PR summary in markdown.
 - **[repo-review](./repo-review)** — Walk through an unfamiliar repo and produce a structured breakdown: what it is, structure, how it works, key design decisions, and gaps. *(Third-party skill, kept for reference.)*
 - **[gpr](./gpr)** — Git pull rebase. Updates the current branch with latest `main` and walks through conflict resolution.
+- **[permission-review](./permission-review)** — Count the permission asks and blocks of the last 30 days from session records, then suggest settings edits one by one for the user to make by hand.
 - **[skill-creator](./skill-creator)** — Scaffolds new skills with the correct `SKILL.md` structure, YAML frontmatter, and templates.
 
 ### Product & research
