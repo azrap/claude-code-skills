@@ -13,10 +13,15 @@ Use this format when opening a PR, writing its description, or summarizing an ex
 
 1. Resolve the requested PR and read its current title, body, base, head, and status.
    Use its actual diff, including for merged PRs; do not substitute the current branch.
-2. Inspect changed files and recorded checks. Find the project purpose and Linear
+2. Check whether the PR is stacked. It is stacked when its base branch is not the
+   repository's default branch, or when another PR uses its head branch as its base.
+   `gh pr list --state all --head <base branch> --json number,url,state` finds the PR
+   below it. `gh pr list --state all --base <head branch> --json number,url,state`
+   finds the PRs above it. Repeat in both directions until no more PRs are found.
+3. Inspect changed files and recorded checks. Find the project purpose and Linear
    project link in the request or existing project records when applicable.
-3. Analyze the key changes
-4. Use the requested PR. Only when none was specified, check the current branch:
+4. Analyze the key changes
+5. Use the requested PR. Only when none was specified, check the current branch:
    `gh pr view --json number,url,body 2>/dev/null`.
    - If a PR exists: write the body to a temp file (via HEREDOC or Write tool)
      and run `gh pr edit --body-file <path>` for that PR to replace its description.
@@ -24,9 +29,10 @@ Use this format when opening a PR, writing its description, or summarizing an ex
      Read the saved body back and validate it against the checklist below.
      Show the user the new body and the PR URL after.
    - If no PR exists: push the branch if needed (`git push -u origin HEAD`),
-     then run `gh pr create --title "..." --body-file <path>` targeting main.
+     then run `gh pr create --title "..." --body-file <path>` targeting main. For a
+     stacked PR, target the head branch of the PR below it (`--base <branch>`).
      Ask the user for a title first if it isn't obvious from the commits.
-5. Do not write `PR_SUMMARY.md` or any other local file as the output — the
+6. Do not write `PR_SUMMARY.md` or any other local file as the output — the
    GitHub PR description is the only artifact.
 
 ## Format
@@ -36,6 +42,12 @@ Use this format when opening a PR, writing its description, or summarizing an ex
 - Start `## Summary` with the larger project goal and verified Linear link when
   applicable, followed by what this PR adds. For HTTP endpoints, name the method,
   full path, caller, and result. State deferred or inactive wiring accurately.
+- For a stacked PR, add `### Stack` directly after the opening Summary paragraphs:
+  one numbered line per PR in the stack, bottom first, with its link and state, and
+  mark this PR. End with the merge and undo order, so the PRs can be reverted together.
+  Keep an existing Stack section when GitHub later moves the base to the default
+  branch. When the stack changes, update the Stack section of the other PRs in the
+  stack too, and nothing else in them. Omit the section for a PR that is not stacked.
 - Add `### Changed file tree` with changed production and documentation paths only.
   Do not include test files or package marker files.
 - Add separate `### Review order` bullets for significant production files: entry
@@ -54,6 +66,14 @@ Use this format when opening a PR, writing its description, or summarizing an ex
 [Larger project goal and verified Linear project link when applicable.]
 
 [What this PR adds, including endpoint method, path, caller, result, and deferred work.]
+
+### Stack
+
+1. [link to the bottom PR] — [open, merged, or closed]
+2. [link to this PR] — [state] ← this PR
+3. [link to the PR above] — [state]
+
+These PRs merge from the bottom up. To undo one, first revert each PR above it, top first.
 
 ### Changed file tree
 
@@ -124,6 +144,8 @@ before/after implementation narration, test-file lists, package marker files, an
 
 - [ ] Summary starts with the larger goal and verified Linear project link when applicable.
 - [ ] Summary states what this diff adds, not just what the project will do.
+- [ ] A stacked PR has a Stack section that links every PR in the stack, bottom first,
+      marks this PR, and gives the merge and undo order. Other PRs have no Stack section.
 - [ ] Each added or changed HTTP endpoint has its method and full path stated.
 - [ ] Caller permissions, saved data, and inactive or deferred work match the code.
 - [ ] A changed-file tree shows production and documentation paths only; test and
