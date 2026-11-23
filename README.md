@@ -9,6 +9,7 @@ Each skill is a directory containing a `SKILL.md` with YAML frontmatter (name + 
 ### Engineering workflow
 
 - **[pr-summary](./pr-summary)** — Generate a brief, structured PR summary in markdown.
+- **[project-build-process](./project-build-process)** — Build a project with a 9-step process: PRD, research, plan, build, Claude review, Codex review, PR, real-app check on a test service, merge. The owner stops the run only at the plan and the merge.
 - **[repo-review](./repo-review)** — Walk through an unfamiliar repo and produce a structured breakdown: what it is, structure, how it works, key design decisions, and gaps. *(Third-party skill, kept for reference.)*
 - **[gpr](./gpr)** — Git pull rebase. Updates the current branch with latest `main` and walks through conflict resolution.
 - **[permission-review](./permission-review)** — Count the permission asks and blocks of the last 30 days from session records, then suggest settings edits one by one for the user to make by hand.
