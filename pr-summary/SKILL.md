@@ -19,7 +19,8 @@ Use this format when opening a PR, writing its description, or summarizing an ex
    below it. `gh pr list --state all --base <head branch> --json number,url,state`
    finds the PRs above it. Repeat in both directions until no more PRs are found.
 3. Inspect changed files and recorded checks. Find the project purpose and Linear
-   project link in the request or existing project records when applicable.
+   project link in the request or existing project records when applicable. Read
+   `.context/critical-choices.md` in the PR worktree when it exists.
 4. Analyze the key changes
 5. Use the requested PR. Only when none was specified, check the current branch:
    `gh pr view --json number,url,body 2>/dev/null`.
@@ -54,6 +55,10 @@ Use this format when opening a PR, writing its description, or summarizing an ex
   point or orchestrator first, then the files it calls in execution order, then
   shared dependencies. Use a GitHub task checkbox with exactly one file and one
   concise sentence per bullet, so the reviewer can save their progress.
+- When `.context/critical-choices.md` has logged choices, add `### Critical choices`
+  before `### Docs`: one bullet per logged line, in plain words, with what was
+  decided, why, and what it costs if wrong. List every logged choice and add none.
+  Omit the section when the file does not exist or is empty.
 - Put documentation changes in their own `### Docs` section.
 - End with `## Test plan`. Describe covered behavior and recorded results without
   listing individual test files. When independent verification was performed, preserve
@@ -92,6 +97,10 @@ These PRs merge from the bottom up. To undo one, first revert each PR above it, 
 ### [Important behavior, if it needs explanation]
 
 - [Short explanation of the behavior, risk, or boundary.]
+
+### Critical choices
+
+- [What was decided] — [why] — [what it costs if wrong]
 
 ### Docs
 
@@ -152,6 +161,8 @@ before/after implementation narration, test-file lists, package marker files, an
       package marker files are omitted.
 - [ ] Separate bullets describe significant production files in reviewer order,
       using a task checkbox with exactly one file and one concise sentence per bullet.
+- [ ] Critical choices lists every logged choice from `.context/critical-choices.md`
+      with its reason and its cost if wrong, or is absent when none is logged.
 - [ ] Documentation changes have their own section.
 - [ ] Every file description explains behavior, not just a list of mechanisms.
 - [ ] Read the entire summary as an unfamiliar reviewer: actors, fields, outcomes,
