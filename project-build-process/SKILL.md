@@ -216,9 +216,9 @@ check fails, the agent stops.
 This is the deploy part of step 8. Claude does items 1, 2, 4 and 5. Item 3 is the
 check in step 8. Never the production project.
 
-The names, commands and test login of a repo are in that repo's own file, not in
-this skill. The repo's CLAUDE.md points to the file. For the backend it is
-`docs/backend-setup/build-process-step8.md`.
+The names, commands and test login of a repo are in that repo's own skill, not in
+this skill. The repo's CLAUDE.md points to it. For the backend it is the
+`backend-build-process` skill.
 
 1. **Deploy the PR with its own URL.** Claude runs this in the PR worktree, after
    step 7. The worktree must be clean and at the pushed PR commit, because the
