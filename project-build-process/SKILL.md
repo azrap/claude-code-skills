@@ -107,10 +107,11 @@ then determine together if it should be used or not.
   add its own. The builder logs each critical technical choice as one line in
   `.context/critical-choices.md`: what it decided, why, and what it costs if wrong.
   A fresh agent compares the code with the spec (`find-unknowns --checkpoint`). The
-  builder builds each part that is not built. Then the builder runs `/verify`: it
-  builds the service, runs it, and observes the change.
-- **Done when:** `scripts/check.sh` passes. The emulator tests pass. `/verify` ran
-  the service and the change worked.
+  builder builds each part that is not built. Then the same fresh agent, not the
+  builder, runs `/run`: it starts the service, checks that the change works in the
+  running service, and gives pass or fail.
+- **Done when:** `scripts/check.sh` passes. The emulator tests pass. The fresh agent
+  ran `/run` and saw the change work in the running service.
 
 ### 5. Code review and fix
 
@@ -118,17 +119,17 @@ then determine together if it should be used or not.
 - **Model:** Fable 5.2 high.
 - **What happens:** Claude runs `code-review-mega`, then `code-review-loop`. After
   each fix round, Claude runs `scripts/check.sh` and the emulator tests again, then
-  `/verify`.
+  a fresh agent runs `/run`.
 - **Done when:** 3 rounds. Fix Medium or higher findings. Document all fixes and
   remaining opens. All checks pass after the last fix.
 
 ### 6. Codex review and fix
 
-- **Who:** Codex (`codex exec`), then Claude for `/verify`.
-- **Model:** Astra 6.2 high. Opus 5.5 for `/verify`.
+- **Who:** Codex (`codex exec`), then a fresh Claude agent for `/run`.
+- **Model:** Astra 6.2 high. Opus 5.5 for `/run`.
 - **What happens:** Codex reviews the PR after Claude's review. Codex fixes Medium
   or higher findings itself. After each fix round, Codex runs `scripts/check.sh` and
-  the emulator tests again. After the last round, Claude runs `/verify`.
+  the emulator tests again. After the last round, a fresh Claude agent runs `/run`.
 - **Done when:** Max 3 rounds. No Medium or higher finding is left, or the open ones
   are documented. All checks pass after the last fix.
 
