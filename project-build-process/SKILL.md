@@ -107,7 +107,9 @@ then determine together if it should be used or not.
   add its own. The builder logs each critical technical choice as one line in
   `.context/critical-choices.md`: what it decided, why, and what it costs if wrong.
   A fresh agent compares the code with the spec (`find-unknowns --checkpoint`). The
-  builder builds each part that is not built. Then the same fresh agent, not the
+  builder builds each part that is not built. The fresh agent also lists each part
+  of the code that is not in the spec. The builder adds the reason for each part.
+  The list goes in the PR text. Then the same fresh agent, not the
   builder, runs `/run`: it starts the service, checks that the change works in the
   running service, and gives pass or fail.
 - **Done when:** `scripts/check.sh` passes. The emulator tests pass. The fresh agent
