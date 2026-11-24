@@ -195,6 +195,10 @@ a test only when the test is wrong or the spec changed, and it logs the reason.
 
 We never put a password, a key or a member email in a doc or in chat.
 
+For Stripe calls only: before each call, the agent checks that the key starts with
+`sk_test_`. After each call, it checks that Stripe answers `livemode: false`. If one
+check fails, the agent stops.
+
 ## When the owner reverses a choice
 
 - We change the spec first.
