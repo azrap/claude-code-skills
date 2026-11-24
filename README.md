@@ -17,6 +17,7 @@ Each skill is a directory containing a `SKILL.md` with YAML frontmatter (name + 
 ### Product & research
 
 - **[prd-generator](./prd-generator)** — Generate comprehensive Product Requirements Documents.
+- **[write-prd](./write-prd)** — Interview the owner one question at a time, then write a short PRD: jobs to be done, north star metric, user stories with pass/fail acceptance criteria, scope, unknowns about outside services, and open questions.
 - **[last30days](./last30days)** — Research a topic across the last 30 days from Reddit, X, Bluesky, Truth Social, YouTube, TikTok, Instagram, Hacker News, Polymarket, and the web. Outputs copy-paste-ready prompts.
 - **[github-resume-bullets](./github-resume-bullets)** — Generate resume bullets from a GitHub user's commit history.
 
