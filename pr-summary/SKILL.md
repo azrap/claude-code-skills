@@ -56,8 +56,9 @@ Use this format when opening a PR, writing its description, or summarizing an ex
   shared dependencies. Use a GitHub task checkbox with exactly one file and one
   concise sentence per bullet, so the reviewer can save their progress.
 - When `.context/critical-choices.md` has logged choices, add `### Critical choices`
-  before `### Docs`: one bullet per logged line, in plain words, with what was
-  decided, why, and what it costs if wrong. List every logged choice and add none.
+  before `### Docs`: one GitHub task checkbox per logged line, in plain words, with
+  what was decided, why, and what it costs if wrong, so the reviewer can check off
+  each one. List every logged choice and add none.
   Omit the section when the file does not exist or is empty.
 - Put documentation changes in their own `### Docs` section.
 - End with `## Test plan`. Describe covered behavior and recorded results without
@@ -100,7 +101,7 @@ These PRs merge from the bottom up. To undo one, first revert each PR above it, 
 
 ### Critical choices
 
-- [What was decided] — [why] — [what it costs if wrong]
+- [ ] [What was decided] — [why] — [what it costs if wrong]
 
 ### Docs
 
@@ -162,7 +163,8 @@ before/after implementation narration, test-file lists, package marker files, an
 - [ ] Separate bullets describe significant production files in reviewer order,
       using a task checkbox with exactly one file and one concise sentence per bullet.
 - [ ] Critical choices lists every logged choice from `.context/critical-choices.md`
-      with its reason and its cost if wrong, or is absent when none is logged.
+      as a task checkbox with its reason and its cost if wrong, or is absent when
+      none is logged.
 - [ ] Documentation changes have their own section.
 - [ ] Every file description explains behavior, not just a list of mechanisms.
 - [ ] Read the entire summary as an unfamiliar reviewer: actors, fields, outcomes,
